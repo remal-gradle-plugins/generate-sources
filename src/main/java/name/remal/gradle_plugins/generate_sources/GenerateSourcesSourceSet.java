@@ -14,7 +14,6 @@ import name.remal.gradle_plugins.generate_sources.task.GenerateGroovy;
 import name.remal.gradle_plugins.generate_sources.task.GenerateJava;
 import name.remal.gradle_plugins.generate_sources.task.GenerateResources;
 import org.gradle.api.Action;
-import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.model.ObjectFactory;
@@ -36,7 +35,6 @@ public abstract class GenerateSourcesSourceSet {
 
     public TaskProvider<GenerateJava> java() {
         return createIfNeeded(
-            "java",
             "java",
             "Java sources",
             GenerateJava.class,
@@ -61,7 +59,6 @@ public abstract class GenerateSourcesSourceSet {
 
     public TaskProvider<GenerateResources> resources() {
         return createIfNeeded(
-            "java",
             "resources",
             "resources",
             GenerateResources.class,
@@ -82,7 +79,6 @@ public abstract class GenerateSourcesSourceSet {
 
     public TaskProvider<GenerateGroovy> groovy() {
         return createIfNeeded(
-            "groovy",
             "groovy",
             "Groovy sources",
             GenerateGroovy.class,
@@ -110,7 +106,6 @@ public abstract class GenerateSourcesSourceSet {
         Generate extends AbstractGenerate<Generate>,
         ProcessTask extends Task
         > TaskProvider<Generate> createIfNeeded(
-        String requiredPlugin,
         String target,
         String targetDescription,
         Class<Generate> generateTaskType,
@@ -119,13 +114,6 @@ public abstract class GenerateSourcesSourceSet {
         Class<ProcessTask> compileTaskType,
         BiConsumer<? super Generate, TaskProvider<? extends ProcessTask>> configureGenerate
     ) {
-        if (!getProject().getPluginManager().hasPlugin(requiredPlugin)) {
-            throw new IllegalStateException(format(
-                "`%s` plugin is not applied",
-                requiredPlugin
-            ));
-        }
-
         val generateTaskName = sourceSet.getTaskName("generate", target);
 
         final TaskProvider<Generate> generateProvider;
@@ -156,9 +144,6 @@ public abstract class GenerateSourcesSourceSet {
         return generateProvider;
     }
 
-
-    @Inject
-    protected abstract Project getProject();
 
     @Inject
     protected abstract TaskContainer getTasks();
