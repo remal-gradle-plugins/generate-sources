@@ -1,0 +1,15 @@
+apply plugin: 'java-library'
+apply plugin: 'maven-publish'
+
+dependencies {
+    optional 'name.remal.gradle-api:gradle-api'
+}
+
+publishing.publications.withType(MavenPublication).configureEach {
+    pom {
+        withXml { xml ->
+            def root = xml.asNode()
+            root.dependencyManagement?.replaceNode {}
+        }
+    }
+}

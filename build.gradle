@@ -3,7 +3,7 @@
 buildscript {
     String rootGroupId = project.ext.rootGroupId = "name.remal.gradle-plugins.${rootProject.name}"
     String rootArtifactId = project.ext.rootArtifactId = rootProject.name
-    String rootSnapshotVersion = project.ext.rootSnapshotVersion = '1-SNAPSHOT'
+    String rootSnapshotVersion = project.ext.rootSnapshotVersion = '2-SNAPSHOT'
     dependencies {
         //classpath("$rootGroupId:$rootArtifactId:$rootSnapshotVersion") { version { strictly(rootSnapshotVersion) } }
         classpath 'name.remal.gradle-plugins.toolkit:build-logic:0.70.2'
@@ -28,14 +28,15 @@ apply plugin: 'name.remal.toolkit.build-logic'
 apply plugin: 'java-gradle-plugin'
 
 dependencies {
+    api project(':generators')
 }
 
 gradlePlugin {
     plugins {
         'name.remal.generate-sources' {
             id = 'name.remal.generate-sources'
-            implementationClass = 'name.remal.gradle_plugins.generate_sources.TemplatePlugin'
-            displayName = 'Plugin'
+            implementationClass = 'name.remal.gradle_plugins.generate_sources.GenerateSourcesPlugin'
+            displayName = 'Generate sources'
             description = property('repository-description')
         }
     }
