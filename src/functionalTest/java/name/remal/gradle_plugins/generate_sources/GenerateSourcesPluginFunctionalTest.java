@@ -39,7 +39,7 @@ class GenerateSourcesPluginFunctionalTest {
             project.getBuildFile().appendBlock("generateSources.forSourceSet(sourceSets.main)", forSourceSet -> {
                 forSourceSet.appendBlock("resources", resources -> {
                     resources.appendBlock("binaryFile('dir/file.bin')", binaryFile -> {
-                        binaryFile.append("write(new byte[]{1, 2, 3});");
+                        binaryFile.append("write([1, 2, 3] as byte[]);");
                     });
                 });
             });

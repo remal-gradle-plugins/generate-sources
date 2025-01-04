@@ -21,12 +21,11 @@ import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.ProjectLayout;
-import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.IgnoreEmptyDirectories;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskInputFilePropertyBuilder;
 
-public abstract class AbstractGenerate<Child extends AbstractGenerate<Child>>
+public abstract class AbstractGenerate
     extends DefaultTask {
 
     @OutputDirectory
@@ -105,25 +104,21 @@ public abstract class AbstractGenerate<Child extends AbstractGenerate<Child>>
     }
 
 
-    public final Child withInputProperty(String propertyName, @Nullable Object value) {
+    public final void withInputProperty(String propertyName, @Nullable Object value) {
         getInputs().property(propertyName, value)
             .optional(true);
-        return self();
     }
 
-    public final Child withInputFiles(String propertyName, Object... paths) {
+    public final void withInputFiles(String propertyName, Object... paths) {
         configureFileProperty(getInputs().files(paths).withPropertyName(propertyName));
-        return self();
     }
 
-    public final Child withInputFile(String propertyName, Object path) {
+    public final void withInputFile(String propertyName, Object path) {
         configureFileProperty(getInputs().file(path).withPropertyName(propertyName));
-        return self();
     }
 
-    public final Child withInputDir(String propertyName, Object path) {
+    public final void withInputDir(String propertyName, Object path) {
         configureFileProperty(getInputs().dir(path).withPropertyName(propertyName));
-        return self();
     }
 
     private static void configureFileProperty(TaskInputFilePropertyBuilder property) {
@@ -148,16 +143,7 @@ public abstract class AbstractGenerate<Child extends AbstractGenerate<Child>>
     }
 
 
-    @SuppressWarnings("unchecked")
-    protected final Child self() {
-        return (Child) this;
-    }
-
-
     @Inject
     protected abstract ProjectLayout getLayout();
-
-    @Inject
-    protected abstract ObjectFactory getObjects();
 
 }

@@ -103,7 +103,7 @@ public abstract class GenerateSourcesSourceSet {
 
     @SuppressWarnings("java:S107")
     private <
-        Generate extends AbstractGenerate<Generate>,
+        Generate extends AbstractGenerate,
         ProcessTask extends Task
         > TaskProvider<Generate> createIfNeeded(
         String target,

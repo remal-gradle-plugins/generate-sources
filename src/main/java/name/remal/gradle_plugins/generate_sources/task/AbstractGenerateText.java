@@ -7,8 +7,8 @@ import org.gradle.api.Action;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
 
-public abstract class AbstractGenerateText<Child extends AbstractGenerateText<Child>>
-    extends AbstractGenerate<Child> {
+public abstract class AbstractGenerateText
+    extends AbstractGenerate {
 
     @Input
     public abstract Property<String> getEncoding();

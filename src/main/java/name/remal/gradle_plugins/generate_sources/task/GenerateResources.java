@@ -4,5 +4,5 @@ import org.gradle.api.tasks.CacheableTask;
 
 @CacheableTask
 public abstract class GenerateResources
-    extends AbstractGenerate<GenerateResources> {
+    extends AbstractGenerate {
 }
