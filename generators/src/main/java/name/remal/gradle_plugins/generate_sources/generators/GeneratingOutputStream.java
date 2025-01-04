@@ -17,7 +17,9 @@ import lombok.Getter;
 import lombok.SneakyThrows;
 
 @Getter
-public class GeneratingOutputStream extends BufferedOutputStream {
+public class GeneratingOutputStream
+    extends BufferedOutputStream
+    implements Generating {
 
     private final Path generatingPath;
 

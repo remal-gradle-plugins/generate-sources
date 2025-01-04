@@ -1,8 +1,39 @@
 package name.remal.gradle_plugins.generate_sources.task;
 
+import javax.annotation.Nullable;
+import name.remal.gradle_plugins.generate_sources.generators.content.java.JavaClassFileContent;
+import name.remal.gradle_plugins.generate_sources.generators.content.java.JavaClassFileContentDefault;
+import name.remal.gradle_plugins.generate_sources.generators.content.java.JavaContent;
+import name.remal.gradle_plugins.generate_sources.generators.content.java.JavaFileContent;
+import name.remal.gradle_plugins.generate_sources.generators.content.java.JavaFileContentDefault;
 import org.gradle.api.tasks.CacheableTask;
 
 @CacheableTask
 public abstract class GenerateJava
-    extends AbstractGenerateJavaLike {
+    extends AbstractGenerateJavaLike<JavaContent, JavaFileContent, JavaClassFileContent> {
+
+    @Override
+    protected JavaFileContent createFileContent(
+        @Nullable String packageName,
+        @Nullable String indent,
+        @Nullable String lineSeparator
+    ) {
+        return new JavaFileContentDefault(packageName, indent, lineSeparator);
+    }
+
+    @Override
+    protected String getClassFileExtension() {
+        return "java";
+    }
+
+    @Override
+    protected JavaClassFileContent createClassFileContent(
+        @Nullable String packageName,
+        String simpleName,
+        @Nullable String indent,
+        @Nullable String lineSeparator
+    ) {
+        return new JavaClassFileContentDefault(packageName, simpleName, indent, lineSeparator);
+    }
+
 }

@@ -1,15 +1,11 @@
 package name.remal.gradle_plugins.generate_sources.task;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Collections.synchronizedSet;
 import static name.remal.gradle_plugins.build_time_constants.api.BuildTimeConstants.getClassName;
 import static name.remal.gradle_plugins.toolkit.SneakyThrowUtils.sneakyThrowsAction;
 import static name.remal.gradle_plugins.toolkit.reflection.ReflectionUtils.isClassPresent;
 import static org.gradle.api.tasks.PathSensitivity.RELATIVE;
 
 import java.nio.charset.Charset;
-import java.util.LinkedHashSet;
-import java.util.Set;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import lombok.val;
@@ -21,6 +17,9 @@ import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.ProjectLayout;
+import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.IgnoreEmptyDirectories;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskInputFilePropertyBuilder;
@@ -44,23 +43,28 @@ public abstract class AbstractGenerate
     }
 
 
-    private final Set<String> relativePaths = synchronizedSet(new LinkedHashSet<>());
-
     public final void binaryFile(
-        String relativePath,
-        Action<GeneratingOutputStream> action
+        Provider<? extends CharSequence> relativePath,
+        Action<? super GeneratingOutputStream> action
     ) {
-        if (!relativePaths.add(relativePath)) {
-            getLogger().warn("Redefining generation of {}", relativePath);
-        }
-
-        doLast(relativePath, new GenerateBinaryFileTaskAction(relativePath, action));
+        doLast(
+            GenerateBinaryFileTaskAction.class.getName(),
+            new GenerateBinaryFileTaskAction(relativePath, action)
+        );
     }
 
+    public final void binaryFile(
+        CharSequence relativePath,
+        Action<? super GeneratingOutputStream> action
+    ) {
+        binaryFile(provider(relativePath), action);
+    }
+
+
     public void textFile(
-        String relativePath,
-        @Nullable Charset charset,
-        Action<GeneratingWriter> action
+        Provider<? extends CharSequence> relativePath,
+        Provider<? extends CharSequence> encoding,
+        Action<? super GeneratingWriter> action
     ) {
         binaryFile(
             relativePath,
@@ -68,18 +72,15 @@ public abstract class AbstractGenerate
                 val editorConfig = new EditorConfig(getLayout().getProjectDirectory().getAsFile().toPath());
                 val generatingPath = out.getGeneratingPath();
 
-                Charset detectedCharset = charset;
+                Charset detectedCharset = encoding
+                    .map(CharSequence::toString)
+                    .map(name -> name.isEmpty() ? null : Charset.forName(name))
+                    .getOrNull();
                 if (detectedCharset == null) {
                     detectedCharset = editorConfig.getCharsetFor(generatingPath);
                 }
-                if (detectedCharset == null) {
-                    detectedCharset = UTF_8;
-                }
 
-                String detectedLineSeparator = editorConfig.getLineSeparatorFor(generatingPath);
-                if (detectedLineSeparator == null) {
-                    detectedLineSeparator = "\n";
-                }
+                val detectedLineSeparator = editorConfig.getLineSeparatorFor(generatingPath);
 
                 try (val writer = new GeneratingWriter(out, detectedCharset, detectedLineSeparator)) {
                     action.execute(writer);
@@ -89,18 +90,33 @@ public abstract class AbstractGenerate
     }
 
     public void textFile(
-        String relativePath,
-        String encoding,
-        Action<GeneratingWriter> action
+        CharSequence relativePath,
+        @Nullable CharSequence encoding,
+        Action<? super GeneratingWriter> action
     ) {
-        textFile(relativePath, Charset.forName(encoding), action);
+        textFile(provider(relativePath), provider(null), action);
     }
 
     public void textFile(
-        String relativePath,
-        Action<GeneratingWriter> action
+        CharSequence relativePath,
+        @Nullable Charset charset,
+        Action<? super GeneratingWriter> action
     ) {
-        textFile(relativePath, (Charset) null, action);
+        textFile(relativePath, charset != null ? charset.name() : null, action);
+    }
+
+    public void textFile(
+        Provider<? extends CharSequence> relativePath,
+        Action<? super GeneratingWriter> action
+    ) {
+        textFile(relativePath, provider(null), action);
+    }
+
+    public void textFile(
+        CharSequence relativePath,
+        Action<? super GeneratingWriter> action
+    ) {
+        textFile(provider(relativePath), action);
     }
 
 
@@ -143,7 +159,17 @@ public abstract class AbstractGenerate
     }
 
 
+    protected final <T> Provider<T> provider(@Nullable T value) {
+        return getProviders().provider(() -> value);
+    }
+
     @Inject
     protected abstract ProjectLayout getLayout();
+
+    @Inject
+    protected abstract ProviderFactory getProviders();
+
+    @Inject
+    protected abstract ObjectFactory getObjects();
 
 }
