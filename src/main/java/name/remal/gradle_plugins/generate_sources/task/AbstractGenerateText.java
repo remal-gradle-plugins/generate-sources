@@ -1,6 +1,5 @@
 package name.remal.gradle_plugins.generate_sources.task;
 
-import name.remal.gradle_plugins.generate_sources.generators.GeneratingWriter;
 import org.gradle.api.Action;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
@@ -10,15 +9,16 @@ public abstract class AbstractGenerateText
     extends AbstractGenerate {
 
     @Input
+    @org.gradle.api.tasks.Optional
     public abstract Property<String> getEncoding();
 
     @Override
-    public void textFile(Provider<? extends CharSequence> relativePath, Action<? super GeneratingWriter> action) {
+    public void textFile(Provider<String> relativePath, Action<? super GeneratingWriter> action) {
         super.textFile(relativePath, getEncoding(), action);
     }
 
     @Override
-    public void textFile(CharSequence relativePath, Action<? super GeneratingWriter> action) {
+    public void textFile(String relativePath, Action<? super GeneratingWriter> action) {
         textFile(provider(relativePath), action);
     }
 

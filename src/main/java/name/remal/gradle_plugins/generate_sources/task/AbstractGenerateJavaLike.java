@@ -10,12 +10,13 @@ import com.google.errorprone.annotations.ForOverride;
 import java.nio.file.Path;
 import javax.annotation.Nullable;
 import lombok.val;
-import name.remal.gradle_plugins.generate_sources.generators.content.JavaLikeClassFileContent;
-import name.remal.gradle_plugins.generate_sources.generators.content.JavaLikeContent;
-import name.remal.gradle_plugins.generate_sources.generators.content.JavaLikeFileContent;
+import name.remal.gradle_plugins.generate_sources.generators.java_like.JavaLikeClassFileContent;
+import name.remal.gradle_plugins.generate_sources.generators.java_like.JavaLikeContent;
+import name.remal.gradle_plugins.generate_sources.generators.java_like.JavaLikeFileContent;
 import name.remal.gradle_plugins.toolkit.EditorConfig;
 import org.gradle.api.Action;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.tasks.Internal;
 
 public abstract class AbstractGenerateJavaLike<
     Block extends JavaLikeContent<Block>,
@@ -32,6 +33,7 @@ public abstract class AbstractGenerateJavaLike<
     );
 
     @ForOverride
+    @Internal
     protected abstract String getClassFileExtension();
 
     @ForOverride
@@ -44,15 +46,15 @@ public abstract class AbstractGenerateJavaLike<
 
 
     public final void scriptFile(
-        Provider<? extends CharSequence> relativePath,
-        Provider<? extends CharSequence> packageName,
+        Provider<String> relativePath,
+        Provider<String> packageName,
         Action<? super FileContent> action
     ) {
         textFile(relativePath, sneakyThrowsAction(writer -> {
             val indent = getIndent(writer.getGeneratingPath());
             val lineSeparator = writer.getLineSeparator();
             val content = createFileContent(
-                packageName.map(CharSequence::toString).getOrNull(),
+                packageName.getOrNull(),
                 indent,
                 lineSeparator
             );
@@ -62,22 +64,22 @@ public abstract class AbstractGenerateJavaLike<
     }
 
     public final void scriptFile(
-        CharSequence relativePath,
-        CharSequence packageName,
+        String relativePath,
+        String packageName,
         Action<? super FileContent> action
     ) {
         scriptFile(provider(relativePath), provider(packageName), action);
     }
 
     public final void scriptFile(
-        Provider<? extends CharSequence> relativePath,
+        Provider<String> relativePath,
         Action<? super FileContent> action
     ) {
         scriptFile(relativePath, provider(null), action);
     }
 
     public final void scriptFile(
-        CharSequence relativePath,
+        String relativePath,
         Action<? super FileContent> action
     ) {
         scriptFile(provider(relativePath), action);
@@ -85,21 +87,21 @@ public abstract class AbstractGenerateJavaLike<
 
 
     public final void classFile(
-        Provider<? extends CharSequence> packageName,
-        Provider<? extends CharSequence> simpleName,
+        Provider<String> packageName,
+        Provider<String> simpleName,
         Action<? super ClassFileContent> action
     ) {
-        val packageNameFinalized = getObjects().property(CharSequence.class).value(packageName);
+        val packageNameFinalized = getObjects().property(String.class).value(packageName);
         packageNameFinalized.finalizeValueOnRead();
 
-        val simpleNameFinalized = getObjects().property(CharSequence.class).value(simpleName);
+        val simpleNameFinalized = getObjects().property(String.class).value(simpleName);
         simpleNameFinalized.finalizeValueOnRead();
 
         val relativePath = getProviders().provider(() -> {
             val result = new StringBuilder();
             val packageNameStr = packageNameFinalized.getOrNull();
             if (isNotEmpty(packageNameStr)) {
-                result.append(packageNameStr.toString().replace('.', '/'));
+                result.append(packageNameStr.replace('.', '/'));
                 result.append('/');
             }
             result.append(simpleNameFinalized.get());
@@ -107,15 +109,15 @@ public abstract class AbstractGenerateJavaLike<
             if (isNotEmpty(extension)) {
                 result.append('.').append(extension);
             }
-            return result;
+            return result.toString();
         });
 
         textFile(relativePath, sneakyThrowsAction(writer -> {
             val indent = getIndent(writer.getGeneratingPath());
             val lineSeparator = writer.getLineSeparator();
             val content = createClassFileContent(
-                packageNameFinalized.map(CharSequence::toString).getOrNull(),
-                simpleNameFinalized.map(CharSequence::toString).get(),
+                packageNameFinalized.getOrNull(),
+                simpleNameFinalized.get(),
                 indent,
                 lineSeparator
             );
@@ -125,8 +127,8 @@ public abstract class AbstractGenerateJavaLike<
     }
 
     public final void classFile(
-        @Nullable CharSequence packageName,
-        CharSequence simpleName,
+        @Nullable String packageName,
+        String simpleName,
         Action<? super ClassFileContent> action
     ) {
         classFile(provider(packageName), provider(simpleName), action);

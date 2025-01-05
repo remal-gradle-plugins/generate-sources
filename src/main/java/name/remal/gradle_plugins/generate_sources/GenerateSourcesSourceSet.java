@@ -14,6 +14,7 @@ import name.remal.gradle_plugins.generate_sources.task.GenerateGroovy;
 import name.remal.gradle_plugins.generate_sources.task.GenerateJava;
 import name.remal.gradle_plugins.generate_sources.task.GenerateResources;
 import org.gradle.api.Action;
+import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.model.ObjectFactory;
@@ -21,7 +22,6 @@ import org.gradle.api.tasks.GroovySourceDirectorySet;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskProvider;
-import org.gradle.api.tasks.compile.CompileOptions;
 import org.gradle.api.tasks.compile.GroovyCompile;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.language.jvm.tasks.ProcessResources;
@@ -36,16 +36,16 @@ public abstract class GenerateSourcesSourceSet {
     public TaskProvider<GenerateJava> java() {
         return createIfNeeded(
             "java",
+            "java",
             "Java sources",
             GenerateJava.class,
             SourceSet::getJava,
             SourceSet::getCompileJavaTaskName,
             JavaCompile.class,
             (generate, compileProvider) -> {
-                generate.getEncoding().convention(compileProvider
-                    .map(JavaCompile::getOptions)
-                    .map(CompileOptions::getEncoding)
-                );
+                generate.getEncoding().convention(getProject().provider(() ->
+                    compileProvider.get().getOptions().getEncoding()
+                ));
             }
         );
     }
@@ -59,6 +59,7 @@ public abstract class GenerateSourcesSourceSet {
 
     public TaskProvider<GenerateResources> resources() {
         return createIfNeeded(
+            "java",
             "resources",
             "resources",
             GenerateResources.class,
@@ -80,16 +81,16 @@ public abstract class GenerateSourcesSourceSet {
     public TaskProvider<GenerateGroovy> groovy() {
         return createIfNeeded(
             "groovy",
+            "groovy",
             "Groovy sources",
             GenerateGroovy.class,
             sourceSet -> sourceSet.getExtensions().getByType(GroovySourceDirectorySet.class),
             sourceSet -> sourceSet.getCompileTaskName("groovy"),
             GroovyCompile.class,
             (generate, compileProvider) -> {
-                generate.getEncoding().convention(compileProvider
-                    .map(GroovyCompile::getOptions)
-                    .map(CompileOptions::getEncoding)
-                );
+                generate.getEncoding().convention(getProject().provider(() ->
+                    compileProvider.get().getOptions().getEncoding()
+                ));
             }
         );
     }
@@ -106,6 +107,7 @@ public abstract class GenerateSourcesSourceSet {
         Generate extends AbstractGenerate,
         ProcessTask extends Task
         > TaskProvider<Generate> createIfNeeded(
+        String requiredPlugin,
         String target,
         String targetDescription,
         Class<Generate> generateTaskType,
@@ -114,6 +116,13 @@ public abstract class GenerateSourcesSourceSet {
         Class<ProcessTask> compileTaskType,
         BiConsumer<? super Generate, TaskProvider<? extends ProcessTask>> configureGenerate
     ) {
+        if (!getProject().getPluginManager().hasPlugin(requiredPlugin)) {
+            throw new IllegalStateException(format(
+                "`%s` plugin is not applied",
+                requiredPlugin
+            ));
+        }
+
         val generateTaskName = sourceSet.getTaskName("generate", target);
 
         final TaskProvider<Generate> generateProvider;
@@ -150,5 +159,8 @@ public abstract class GenerateSourcesSourceSet {
 
     @Inject
     protected abstract ObjectFactory getObjects();
+
+    @Inject
+    protected abstract Project getProject();
 
 }

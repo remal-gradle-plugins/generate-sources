@@ -39,7 +39,7 @@ class GenerateSourcesPluginFunctionalTest {
         }
 
         @Test
-        void generateJava() throws Throwable {
+        void generateJava() {
             project.getBuildFile().appendBlock("generateSources.forSourceSet(sourceSets.main)", forSourceSet -> {
                 forSourceSet.appendBlock("java", java -> {
                     java.appendBlock("classFile('pkg', 'Logic')", classFile -> {
@@ -56,13 +56,18 @@ class GenerateSourcesPluginFunctionalTest {
 
             project.assertBuildSuccessfully();
 
-            val mainClassesDir = project.getProjectDir().toPath().resolve("build/classes/java/main");
-            val mainClassesDirUrl = mainClassesDir.toUri().toURL();
-            try (val classLoader = new URLClassLoader(new URL[]{mainClassesDirUrl}, null)) {
-                val logicClass = classLoader.loadClass("pkg.Logic");
-                val logicMethod = logicClass.getMethod("execute");
-                val logicResult = logicMethod.invoke(null);
-                assertEquals(asList(1, 2, 3), logicResult);
+            try {
+                val mainClassesDir = project.getProjectDir().toPath()
+                    .resolve("build/classes/java/main");
+                val mainClassesDirUrl = mainClassesDir.toUri().toURL();
+                try (val classLoader = new URLClassLoader(new URL[]{mainClassesDirUrl}, null)) {
+                    val logicClass = classLoader.loadClass("pkg.Logic");
+                    val logicMethod = logicClass.getMethod("execute");
+                    val logicResult = logicMethod.invoke(null);
+                    assertEquals(asList(1, 2, 3), logicResult);
+                }
+            } catch (Throwable e) {
+                throw new AssertionError("Assertion failed for " + project.getProjectDir(), e);
             }
         }
 
@@ -78,10 +83,15 @@ class GenerateSourcesPluginFunctionalTest {
 
             project.assertBuildSuccessfully();
 
-            val processedResourcePath = project.getProjectDir().toPath().resolve("build/resources/main/dir/file.bin");
-            assertThat(processedResourcePath)
-                .isRegularFile()
-                .hasBinaryContent(new byte[]{1, 2, 3});
+            try {
+                val processedResourcePath = project.getProjectDir().toPath()
+                    .resolve("build/resources/main/dir/file.bin");
+                assertThat(processedResourcePath)
+                    .isRegularFile()
+                    .hasBinaryContent(new byte[]{1, 2, 3});
+            } catch (Throwable e) {
+                throw new AssertionError("Assertion failed for " + project.getProjectDir(), e);
+            }
         }
 
         @Test
@@ -96,10 +106,16 @@ class GenerateSourcesPluginFunctionalTest {
 
             project.assertBuildSuccessfully();
 
-            val processedResourcePath = project.getProjectDir().toPath().resolve("build/resources/main/dir/file.txt");
-            assertThat(processedResourcePath)
-                .isRegularFile()
-                .hasBinaryContent("123".getBytes(UTF_8));
+            try {
+                val processedResourcePath = project.getProjectDir()
+                    .toPath()
+                    .resolve("build/resources/main/dir/file.txt");
+                assertThat(processedResourcePath)
+                    .isRegularFile()
+                    .hasBinaryContent("123".getBytes(UTF_8));
+            } catch (Throwable e) {
+                throw new AssertionError("Assertion failed for " + project.getProjectDir(), e);
+            }
         }
 
     }
