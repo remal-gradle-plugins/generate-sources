@@ -1,11 +1,14 @@
 package name.remal.gradle_plugins.generate_sources.generators;
 
 import static java.lang.String.join;
+import static java.util.Arrays.asList;
 import static name.remal.gradle_plugins.toolkit.ObjectUtils.isNotEmpty;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 import javax.annotation.Nullable;
+import lombok.SneakyThrows;
 
 public class TextContentDefault
     implements TextContent {
@@ -24,7 +27,42 @@ public class TextContentDefault
     }
 
 
-    protected final List<CharSequence> chunks = new ArrayList<>();
+    private final List<CharSequence> chunks = new ArrayList<>();
+
+    private boolean canChunksBeAdded = true;
+
+    protected final void addFirstChunks(CharSequence... chunks) {
+        if (!canChunksBeAdded) {
+            throw new IllegalStateException("At this moment, chunks can't be added."
+                + " Check that the `ident()` or `block()` logic doesn't add any chink to the parent content."
+            );
+        }
+
+        for (int i = 0; i < chunks.length; i++) {
+            this.chunks.add(i, chunks[i]);
+        }
+    }
+
+    protected final void addLastChunks(CharSequence... chunks) {
+        if (!canChunksBeAdded) {
+            throw new IllegalStateException("At this moment, chunks can't be added."
+                + " Check that the `ident()` or `block()` logic doesn't add any chink to the parent content."
+            );
+        }
+
+        this.chunks.addAll(asList(chunks));
+    }
+
+    @SneakyThrows
+    protected final <T> T withoutChunksAdding(Callable<T> action) {
+        canChunksBeAdded = false;
+        try {
+            return action.call();
+        } finally {
+            canChunksBeAdded = true;
+        }
+    }
+
 
     @Override
     public String toString() {

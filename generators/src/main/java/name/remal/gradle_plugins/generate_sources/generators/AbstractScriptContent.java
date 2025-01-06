@@ -1,7 +1,9 @@
 package name.remal.gradle_plugins.generate_sources.generators;
 
+import static java.util.stream.Collectors.joining;
 import static name.remal.gradle_plugins.toolkit.ObjectUtils.isNotEmpty;
 
+import com.google.common.base.Splitter;
 import com.google.errorprone.annotations.ForOverride;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
@@ -38,54 +40,64 @@ public abstract class AbstractScriptContent<Block extends ScriptContent<Block>>
 
     @Override
     public void indent(Action<Block> action) {
-        chunks.add(indentImpl(action));
+        addLastChunks(indentImpl(action));
     }
 
-    private static final Pattern INDENT_NEXT_LINE = Pattern.compile("\\n([^\\n])");
+    private static final Pattern NEW_LINE = Pattern.compile("(\\r\\n)|(\\n\\r)|(\\r)|(\\n)");
 
     private String indentImpl(Action<Block> action) {
-        val block = newBlock();
-        action.execute(block);
+        return withoutChunksAdding(() -> {
+            val block = newBlock();
+            action.execute(block);
 
-        String blockContent = block.toString();
-        if (blockContent.isEmpty()) {
-            return "";
-        }
+            String blockContent = block.toString();
+            if (blockContent.isEmpty()) {
+                return "";
+            }
 
-        blockContent = indent + INDENT_NEXT_LINE.matcher(blockContent).replaceAll("\n" + indent + "$1");
-
-        return blockContent;
+            return Splitter.on(NEW_LINE).splitToStream(blockContent)
+                .map(line -> {
+                    if (!line.isEmpty()) {
+                        return indent + line;
+                    } else {
+                        return line;
+                    }
+                })
+                .collect(joining(lineSeparator));
+        });
     }
 
     @Override
-    public void block(CharSequence string, Action<Block> action) {
-        chunks.add(blockImpl(string, action));
+    public void block(CharSequence statement, Action<Block> action) {
+        addLastChunks(blockImpl(statement, action));
     }
 
     private String blockImpl(CharSequence string, Action<Block> action) {
-        val content = new StringBuilder();
+        return withoutChunksAdding(() -> {
+            val content = new StringBuilder();
 
-        val blockStart = getBlockStart();
-        if (blockStart.isEmpty()) {
-            if (string.length() > 0) {
-                content.append(string).append(lineSeparator);
-            }
-        } else {
-            if (string.length() == 0) {
-                content.append(blockStart.trim()).append(lineSeparator);
+            val blockStart = getBlockStart();
+            if (blockStart.isEmpty()) {
+                if (string.length() > 0) {
+                    content.append(string).append(lineSeparator);
+                }
             } else {
-                content.append(string).append(blockStart).append(lineSeparator);
+                if (string.length() == 0) {
+                    content.append(blockStart.trim()).append(lineSeparator);
+                } else {
+                    content.append(string).append(blockStart).append(lineSeparator);
+                }
             }
-        }
 
-        content.append(indentImpl(action));
+            content.append(indentImpl(action));
 
-        val blockEnd = getBlockEnd();
-        if (!blockEnd.isEmpty()) {
-            content.append(getBlockEnd()).append(lineSeparator);
-        }
+            val blockEnd = getBlockEnd();
+            if (!blockEnd.isEmpty()) {
+                content.append(getBlockEnd()).append(lineSeparator);
+            }
 
-        return content.toString();
+            return content.toString();
+        });
     }
 
 }

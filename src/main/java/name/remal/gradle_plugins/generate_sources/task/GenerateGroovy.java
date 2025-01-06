@@ -14,11 +14,10 @@ public abstract class GenerateGroovy
 
     @Override
     protected GroovyFileContent createFileContent(
-        @Nullable String packageName,
         @Nullable String indent,
         @Nullable String lineSeparator
     ) {
-        return new GroovyFileContentDefault(packageName, indent, lineSeparator);
+        return new GroovyFileContentDefault(indent, lineSeparator);
     }
 
     @Override

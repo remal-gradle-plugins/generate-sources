@@ -38,7 +38,7 @@ public class GeneratingOutputStream
         );
     }
 
-    public synchronized void copy(@WillNotClose InputStream inputStream) throws IOException {
+    public synchronized void copyFrom(@WillNotClose InputStream inputStream) throws IOException {
         ByteStreams.copy(inputStream, this);
     }
 

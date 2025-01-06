@@ -27,7 +27,6 @@ public abstract class AbstractGenerateJavaLike<
 
     @ForOverride
     protected abstract FileContent createFileContent(
-        @Nullable String packageName,
         @Nullable String indent,
         @Nullable String lineSeparator
     );
@@ -45,47 +44,13 @@ public abstract class AbstractGenerateJavaLike<
     );
 
 
-    public final void scriptFile(
-        Provider<String> relativePath,
-        Provider<String> packageName,
-        Action<? super FileContent> action
-    ) {
-        textFile(relativePath, sneakyThrowsAction(writer -> {
-            val indent = getIndent(writer.getGeneratingPath());
-            val lineSeparator = writer.getLineSeparator();
-            val content = createFileContent(
-                packageName.getOrNull(),
-                indent,
-                lineSeparator
-            );
-            action.execute(content);
-            writer.write(content.toString());
-        }));
-    }
-
-    public final void scriptFile(
-        String relativePath,
-        String packageName,
-        Action<? super FileContent> action
-    ) {
-        scriptFile(provider(relativePath), provider(packageName), action);
-    }
-
-    public final void scriptFile(
-        Provider<String> relativePath,
-        Action<? super FileContent> action
-    ) {
-        scriptFile(relativePath, provider(null), action);
-    }
-
-    public final void scriptFile(
-        String relativePath,
-        Action<? super FileContent> action
-    ) {
-        scriptFile(provider(relativePath), action);
-    }
-
-
+    /**
+     * Configure a JVM-like class file generation.
+     *
+     * @param packageName The package name of the generated class. Optional.
+     * @param simpleName The simple class name of the generated class.
+     * @param action Generation logic.
+     */
     public final void classFile(
         Provider<String> packageName,
         Provider<String> simpleName,
@@ -126,12 +91,59 @@ public abstract class AbstractGenerateJavaLike<
         }));
     }
 
+    /**
+     * Configure a JVM-like class file generation.
+     *
+     * @param packageName The package name of the generated class. Optional.
+     * @param simpleName The simple class name of the generated class.
+     * @param action Generation logic.
+     */
     public final void classFile(
         @Nullable String packageName,
         String simpleName,
         Action<? super ClassFileContent> action
     ) {
         classFile(provider(packageName), provider(simpleName), action);
+    }
+
+
+    /**
+     * Configure a JVM-like script file generation.
+     * A "script" is a file of the task's language without {@code package} statement.
+     * Imports and static imports are still allowed.
+     *
+     * @param relativePath The relative path of the text file.
+     * @param action Generation logic.
+     */
+    public final void scriptFile(
+        Provider<String> relativePath,
+        Action<? super FileContent> action
+    ) {
+        textFile(relativePath, sneakyThrowsAction(writer -> {
+            val indent = getIndent(writer.getGeneratingPath());
+            val lineSeparator = writer.getLineSeparator();
+            val content = createFileContent(
+                indent,
+                lineSeparator
+            );
+            action.execute(content);
+            writer.write(content.toString());
+        }));
+    }
+
+    /**
+     * Configure a JVM-like script file generation.
+     * A "script" is a file of the task's language without {@code package} statement.
+     * Imports and static imports are still allowed.
+     *
+     * @param relativePath The relative path of the text file.
+     * @param action Generation logic.
+     */
+    public final void scriptFile(
+        String relativePath,
+        Action<? super FileContent> action
+    ) {
+        scriptFile(provider(relativePath), action);
     }
 
 

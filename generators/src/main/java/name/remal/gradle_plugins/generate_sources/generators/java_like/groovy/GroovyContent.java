@@ -14,7 +14,7 @@ public interface GroovyContent
         @DelegatesTo(GroovyContent.class)
         @ClosureParams(
             value = SimpleType.class,
-            options = "name.remal.gradle_plugins.generate_sources.generators.groovy.java_like.GroovyContent"
+            options = "name.remal.gradle_plugins.generate_sources.generators.java_like.groovy.GroovyContent"
         )
         Closure<?> closure
     ) {
@@ -23,15 +23,15 @@ public interface GroovyContent
 
     @Override
     default void block(
-        CharSequence string,
+        CharSequence statement,
         @DelegatesTo(GroovyContent.class)
         @ClosureParams(
             value = SimpleType.class,
-            options = "name.remal.gradle_plugins.generate_sources.generators.groovy.java_like.GroovyContent"
+            options = "name.remal.gradle_plugins.generate_sources.generators.java_like.groovy.GroovyContent"
         )
         Closure<?> closure
     ) {
-        JavaLikeContent.super.block(string, closure);
+        JavaLikeContent.super.block(statement, closure);
     }
 
     @Override
@@ -39,7 +39,7 @@ public interface GroovyContent
         @DelegatesTo(GroovyContent.class)
         @ClosureParams(
             value = SimpleType.class,
-            options = "name.remal.gradle_plugins.generate_sources.generators.groovy.java_like.GroovyContent"
+            options = "name.remal.gradle_plugins.generate_sources.generators.java_like.groovy.GroovyContent"
         )
         Closure<?> closure
     ) {

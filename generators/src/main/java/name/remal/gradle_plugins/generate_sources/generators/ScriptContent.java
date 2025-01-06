@@ -11,8 +11,52 @@ import org.gradle.api.Action;
 public interface ScriptContent<Block extends ScriptContent<Block>>
     extends TextContent {
 
+    /**
+     * Indents block of code.
+     *
+     * <p>Example:
+     * <pre>{@code
+     * line("var list = asList(");
+     * indent(inner -> {
+     *     inner.line("1,");
+     *     inner.line("2,");
+     *     inner.line("3");
+     * })
+     * line(");");
+     * }</pre>
+     * Generates:
+     * <pre>{@code
+     * var list = asList(
+     *     1,
+     *     2,
+     *     3
+     * );
+     * }</pre>
+     */
     void indent(Action<Block> action);
 
+    /**
+     * Indents block of code.
+     *
+     * <p>Example:
+     * <pre>{@code
+     * line("var list = asList(");
+     * indent(inner -> {
+     *     inner.line("1,");
+     *     inner.line("2,");
+     *     inner.line("3");
+     * })
+     * line(");");
+     * }</pre>
+     * Generates:
+     * <pre>{@code
+     * var list = asList(
+     *     1,
+     *     2,
+     *     3
+     * );
+     * }</pre>
+     */
     default void indent(
         @DelegatesTo(ScriptContent.class)
         @ClosureParams(FirstParam.FirstGenericType.class)
@@ -21,26 +65,102 @@ public interface ScriptContent<Block extends ScriptContent<Block>>
         indent(configureUsing(closure));
     }
 
+    /**
+     * Prints a "block" of code.
+     * A "block" is a statement that has child statements.
+     *
+     * <p>Example:
+     * <pre>{@code
+     * block("if (condition)", inner -> {
+     *     inner.line("return true;");
+     * })
+     * }</pre>
+     * Generates:
+     * <pre>{@code
+     * if (condition) {
+     *     return true;
+     * }
+     * }</pre>
+     *
+     * <p>Curly braces are added automatically.
+     */
     void block(
-        CharSequence string,
+        CharSequence statement,
         Action<Block> action
     );
 
+    /**
+     * Prints a "block" of code.
+     * A "block" is a statement that has child statements.
+     *
+     * <p>Example:
+     * <pre>{@code
+     * block("if (condition)", inner -> {
+     *     inner.line("return true;");
+     * })
+     * }</pre>
+     * Generates:
+     * <pre>{@code
+     * if (condition) {
+     *     return true;
+     * }
+     * }</pre>
+     *
+     * <p>Curly braces are added automatically.
+     */
     default void block(
-        CharSequence string,
+        CharSequence statement,
         @DelegatesTo(ScriptContent.class)
         @ClosureParams(FirstParam.FirstGenericType.class)
         Closure<?> closure
     ) {
-        block(string, configureUsing(closure));
+        block(statement, configureUsing(closure));
     }
 
+    /**
+     * Prints a "block" of code.
+     * A "block" is a statement that has child statements.
+     *
+     * <p>Example:
+     * <pre>{@code
+     * block(inner -> {
+     *     inner.line("return true;");
+     * })
+     * }</pre>
+     * Generates:
+     * <pre>{@code
+     * {
+     *     return true;
+     * }
+     * }</pre>
+     *
+     * <p>Curly braces are added automatically.
+     */
     default void block(
         Action<Block> action
     ) {
         block("", action);
     }
 
+    /**
+     * Prints a "block" of code.
+     * A "block" is a statement that has child statements.
+     *
+     * <p>Example:
+     * <pre>{@code
+     * block(inner -> {
+     *     inner.line("return true;");
+     * })
+     * }</pre>
+     * Generates:
+     * <pre>{@code
+     * {
+     *     return true;
+     * }
+     * }</pre>
+     *
+     * <p>Curly braces are added automatically.
+     */
     default void block(
         @DelegatesTo(ScriptContent.class)
         @ClosureParams(FirstParam.FirstGenericType.class)

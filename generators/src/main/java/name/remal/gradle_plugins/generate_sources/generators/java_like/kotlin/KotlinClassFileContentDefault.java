@@ -1,7 +1,10 @@
-package name.remal.gradle_plugins.generate_sources.generators.java_like.koltin;
+package name.remal.gradle_plugins.generate_sources.generators.java_like.kotlin;
+
+import static name.remal.gradle_plugins.toolkit.ObjectUtils.defaultValue;
 
 import javax.annotation.Nullable;
 import lombok.Getter;
+import name.remal.gradle_plugins.generate_sources.generators.java_like.chunks.JavaLikePackageChunkDefault;
 
 public class KotlinClassFileContentDefault
     extends KotlinFileContentDefault
@@ -16,7 +19,13 @@ public class KotlinClassFileContentDefault
         @Nullable String indent,
         @Nullable String lineSeparator
     ) {
-        super(packageName, indent, lineSeparator);
+        super(indent, lineSeparator);
+        addFirstChunks(
+            JavaLikePackageChunkDefault.builder()
+                .packageName(defaultValue(packageName))
+                .statementDelimiter("")
+                .build()
+        );
         this.simpleName = simpleName;
     }
 

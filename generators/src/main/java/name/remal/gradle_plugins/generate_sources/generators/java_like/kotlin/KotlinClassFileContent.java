@@ -1,4 +1,4 @@
-package name.remal.gradle_plugins.generate_sources.generators.java_like.koltin;
+package name.remal.gradle_plugins.generate_sources.generators.java_like.kotlin;
 
 import name.remal.gradle_plugins.generate_sources.generators.java_like.JavaLikeClassFileContent;
 

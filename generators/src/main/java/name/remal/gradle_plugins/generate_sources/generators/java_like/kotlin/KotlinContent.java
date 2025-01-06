@@ -1,4 +1,4 @@
-package name.remal.gradle_plugins.generate_sources.generators.java_like.java;
+package name.remal.gradle_plugins.generate_sources.generators.java_like.kotlin;
 
 import groovy.lang.Closure;
 import groovy.lang.DelegatesTo;
@@ -6,15 +6,15 @@ import groovy.transform.stc.ClosureParams;
 import groovy.transform.stc.SimpleType;
 import name.remal.gradle_plugins.generate_sources.generators.java_like.JavaLikeContent;
 
-public interface JavaContent
-    extends JavaLikeContent<JavaContent> {
+public interface KotlinContent
+    extends JavaLikeContent<KotlinContent> {
 
     @Override
     default void indent(
-        @DelegatesTo(JavaContent.class)
+        @DelegatesTo(KotlinContent.class)
         @ClosureParams(
             value = SimpleType.class,
-            options = "name.remal.gradle_plugins.generate_sources.generators.java_like.java.JavaContent"
+            options = "name.remal.gradle_plugins.generate_sources.generators.java_like.kotlin.KotlinContent"
         )
         Closure<?> closure
     ) {
@@ -24,10 +24,10 @@ public interface JavaContent
     @Override
     default void block(
         CharSequence statement,
-        @DelegatesTo(JavaContent.class)
+        @DelegatesTo(KotlinContent.class)
         @ClosureParams(
             value = SimpleType.class,
-            options = "name.remal.gradle_plugins.generate_sources.generators.java_like.java.JavaContent"
+            options = "name.remal.gradle_plugins.generate_sources.generators.java_like.kotlin.KotlinContent"
         )
         Closure<?> closure
     ) {
@@ -36,10 +36,10 @@ public interface JavaContent
 
     @Override
     default void block(
-        @DelegatesTo(JavaContent.class)
+        @DelegatesTo(KotlinContent.class)
         @ClosureParams(
             value = SimpleType.class,
-            options = "name.remal.gradle_plugins.generate_sources.generators.java_like.java.JavaContent"
+            options = "name.remal.gradle_plugins.generate_sources.generators.java_like.kotlin.KotlinContent"
         )
         Closure<?> closure
     ) {

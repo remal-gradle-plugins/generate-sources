@@ -38,14 +38,23 @@ public class GeneratingWriter
         write(format(format, args));
     }
 
+    public void line(String line) throws IOException {
+        write(line);
+        newLine();
+    }
+
     @FormatMethod
-    public void writeLine(@FormatString String format, Object... args) throws IOException {
+    public void line(@FormatString String format, Object... args) throws IOException {
         writeFormat(format, args);
         newLine();
     }
 
+    public void line() throws IOException {
+        newLine();
+    }
+
     @SuppressWarnings("SynchronizeOnNonFinalField")
-    public void copy(@WillNotClose Reader reader) throws IOException {
+    public void copyFrom(@WillNotClose Reader reader) throws IOException {
         synchronized (lock) {
             CharStreams.copy(reader, this);
         }

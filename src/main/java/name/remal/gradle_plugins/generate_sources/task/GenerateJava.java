@@ -14,11 +14,10 @@ public abstract class GenerateJava
 
     @Override
     protected JavaFileContent createFileContent(
-        @Nullable String packageName,
         @Nullable String indent,
         @Nullable String lineSeparator
     ) {
-        return new JavaFileContentDefault(packageName, indent, lineSeparator);
+        return new JavaFileContentDefault(indent, lineSeparator);
     }
 
     @Override

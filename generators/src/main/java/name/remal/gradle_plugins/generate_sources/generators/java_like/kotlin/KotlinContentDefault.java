@@ -1,4 +1,4 @@
-package name.remal.gradle_plugins.generate_sources.generators.java_like.koltin;
+package name.remal.gradle_plugins.generate_sources.generators.java_like.kotlin;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -24,11 +24,11 @@ public class KotlinContentDefault
     }
 
     @Override
-    public void block(CharSequence string, Action<KotlinContent> action) {
-        if (isBlank(string)) {
-            string = "run";
+    public void block(CharSequence statement, Action<KotlinContent> action) {
+        if (isBlank(statement)) {
+            statement = "run";
         }
-        super.block(string, action);
+        super.block(statement, action);
     }
 
 }

@@ -4,11 +4,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.gradle.api.Action;
+import org.gradle.api.Describable;
 import org.gradle.api.Task;
 import org.gradle.api.provider.Provider;
 
 @RequiredArgsConstructor
-class GenerateBinaryFileTaskAction implements Action<Task> {
+class GenerateBinaryFileTaskAction implements Action<Task>, Describable {
 
     private final Provider<String> relativePathProvider;
     private final Action<? super GeneratingOutputStream> action;
@@ -25,6 +26,11 @@ class GenerateBinaryFileTaskAction implements Action<Task> {
         try (val out = new GeneratingOutputStream(outputFilePath)) {
             action.execute(out);
         }
+    }
+
+    @Override
+    public String getDisplayName() {
+        return "Generate " + relativePathProvider.get();
     }
 
 }
