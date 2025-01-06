@@ -51,6 +51,10 @@ public abstract class GenerateSourcesExtension {
         return target;
     }
 
+    public GenerateSourcesSourceSet getForMainSourceSet() {
+        return forMainSourceSet();
+    }
+
 
     @Inject
     protected abstract ObjectFactory getObjects();
