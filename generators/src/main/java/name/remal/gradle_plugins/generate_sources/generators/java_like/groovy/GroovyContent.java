@@ -65,7 +65,7 @@ public interface GroovyContent
         if (ObjectUtils.isNotEmpty(warnings)) {
             content.append('(');
             if (warnings.length > 1) {
-                content.append('{');
+                content.append('[');
             }
             content.append(stream(warnings)
                 .filter(Objects::nonNull)
@@ -73,7 +73,7 @@ public interface GroovyContent
                 .collect(joining(", "))
             );
             if (warnings.length > 1) {
-                content.append('}');
+                content.append(']');
             }
             content.append(')');
         }

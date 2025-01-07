@@ -71,8 +71,7 @@ public class TextContentDefault
 
     @Override
     public void line(CharSequence line) {
-        chunks.add(line);
-        chunks.add(lineSeparator);
+        addLastChunks(line, lineSeparator);
     }
 
     @Override

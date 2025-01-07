@@ -41,7 +41,7 @@ class GroovyClassFileContentDefaultTest {
             "",
             "class Logic {",
             "",
-            "    @SuppressWarnings({\"unchecked\", \"rawtypes\"})",
+            "    @SuppressWarnings([\"unchecked\", \"rawtypes\"])",
             "    static List<Integer> execute() {",
             "        return asList(",
             "            1,",

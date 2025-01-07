@@ -7,11 +7,13 @@
 [![configuration cache: supported from v2](https://img.shields.io/static/v1?label=configuration%20cache&message=supported%20from%20v2&color=success)](https://docs.gradle.org/current/userguide/configuration_cache.html)
 
 <!--plugin-usage:name.remal.generate-sources-->
+
 ```groovy
 plugins {
-    id 'name.remal.generate-sources' version '2.0.0-rc-1'
+  id 'name.remal.generate-sources' version '2.0.0-rc-1'
 }
 ```
+
 <!--/plugin-usage-->
 
 &nbsp;
@@ -44,12 +46,12 @@ generateSources.forMainSourceSet.java {
     addImport('java.util.List')
     block("public class ${simpleName}") {
       line()
-      block('public static List<Integer> execute()') {
+      suppressWarningsLine('unchecked', 'rawtypes')
+      block('public static List execute()') {
         line('return asList(')
         ident {
-          line('1,')
-          line('2,')
-          line('3')
+          line('"' + escapeString('multi\bline\nstring') + '",') // `escapeString` will escape Java string
+          line('2')
         }
         line(');')
       }
@@ -70,11 +72,11 @@ import java.util.List;
 
 public class Logic {
 
-  public static List<Integer> execute() {
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  public static List execute() {
     return asList(
-      1,
-      2,
-      3
+      "multi\bline\nstring",
+      2
     );
   }
 
@@ -152,12 +154,12 @@ generateSources.forMainSourceSet.groovy {
     addImport('java.util.List')
     block("class ${simpleName}") {
       line()
-      block('static List<Integer> execute()') {
+      suppressWarningsLine('unchecked', 'rawtypes')
+      block('static List execute()') {
         line('return asList(')
         ident {
-          line('1,')
+          line('"' + escapeString('multi\bline\nstring') + '",') // `escapeString` will escape Groovy string
           line('2,')
-          line('3,')
         }
         line(')')
       }
@@ -174,15 +176,13 @@ package pkg
 
 import static java.util.Arrays.asList
 
-import java.util.List
-
 class Logic {
 
-  static List<Integer> execute() {
+  @SuppressWarnings(["unchecked", "rawtypes"])
+  static List execute() {
     return asList(
-      1,
+      "multi\bline\nstring",
       2,
-      3,
     )
   }
 
