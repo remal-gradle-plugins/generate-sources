@@ -19,7 +19,7 @@ public class KotlinContentDefault
     }
 
     @Override
-    protected KotlinContent newBlock() {
+    public KotlinContent newBlock() {
         return new KotlinContentDefault(indent, lineSeparator);
     }
 

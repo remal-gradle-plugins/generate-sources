@@ -18,9 +18,6 @@ public abstract class AbstractScriptContent<Block extends ScriptContent<Block>>
     protected abstract String getDefaultIndent();
 
     @ForOverride
-    protected abstract Block newBlock();
-
-    @ForOverride
     protected abstract String getBlockStart();
 
     @ForOverride

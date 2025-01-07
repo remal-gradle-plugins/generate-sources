@@ -30,9 +30,13 @@ public interface TextContent extends DelegatingCharSequence {
     }
 
 
-    @ApiStatus.Internal
-    <T extends TextContentChunk> T getChunk(Class<T> type);
-
+    /**
+     * Return {@code true} if this {@link TextContent} has chunks.
+     * {@code false} means that this {@link TextContent} is empty.
+     */
     boolean hasChunks();
+
+    @ApiStatus.Experimental
+    <T extends TextContentChunk> T getChunk(Class<T> type);
 
 }
