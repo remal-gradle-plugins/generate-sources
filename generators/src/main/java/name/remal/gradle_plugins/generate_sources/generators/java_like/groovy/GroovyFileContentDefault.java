@@ -23,7 +23,7 @@ public class GroovyFileContentDefault
         );
     }
 
-    public GroovyFileContentDefault(@Nullable String packageName) {
+    public GroovyFileContentDefault() {
         this(null, null);
     }
 
