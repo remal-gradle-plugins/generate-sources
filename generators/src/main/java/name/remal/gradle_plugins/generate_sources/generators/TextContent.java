@@ -33,4 +33,6 @@ public interface TextContent extends DelegatingCharSequence {
     @ApiStatus.Internal
     <T extends TextContentChunk> T getChunk(Class<T> type);
 
+    boolean hasChunks();
+
 }

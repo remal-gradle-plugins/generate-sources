@@ -84,4 +84,17 @@ public class TextContentDefault
             .orElseThrow(() -> new IllegalStateException("No chunk of " + type));
     }
 
+    @Override
+    public boolean hasChunks() {
+        return !chunks.isEmpty();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        if (!hasChunks()) {
+            return true;
+        }
+        return TextContent.super.isEmpty();
+    }
+
 }
