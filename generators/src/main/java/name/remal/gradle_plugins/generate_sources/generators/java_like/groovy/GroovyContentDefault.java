@@ -16,7 +16,7 @@ public class GroovyContentDefault
     }
 
     @Override
-    public GroovyContent newBlock() {
+    protected GroovyContent newBlock() {
         return new GroovyContentDefault(indent, lineSeparator);
     }
 

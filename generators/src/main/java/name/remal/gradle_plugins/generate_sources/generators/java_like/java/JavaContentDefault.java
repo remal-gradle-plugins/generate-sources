@@ -16,7 +16,7 @@ public class JavaContentDefault
     }
 
     @Override
-    public JavaContent newBlock() {
+    protected JavaContent newBlock() {
         return new JavaContentDefault(indent, lineSeparator);
     }
 

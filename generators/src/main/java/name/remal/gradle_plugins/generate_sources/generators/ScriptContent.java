@@ -7,7 +7,6 @@ import groovy.lang.DelegatesTo;
 import groovy.transform.stc.ClosureParams;
 import groovy.transform.stc.FirstParam;
 import org.gradle.api.Action;
-import org.jetbrains.annotations.ApiStatus;
 
 public interface ScriptContent<Block extends ScriptContent<Block>>
     extends TextContent {
@@ -183,9 +182,5 @@ public interface ScriptContent<Block extends ScriptContent<Block>>
     ) {
         block(configureUsing(closure));
     }
-
-
-    @ApiStatus.Experimental
-    Block newBlock();
 
 }
