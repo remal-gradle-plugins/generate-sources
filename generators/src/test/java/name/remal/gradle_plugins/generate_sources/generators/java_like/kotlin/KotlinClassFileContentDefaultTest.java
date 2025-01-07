@@ -17,6 +17,7 @@ class KotlinClassFileContentDefaultTest {
         content.addStaticImport(Arrays.class, "asList");
         content.block("class " + content.getSimpleName(), clazz -> {
             clazz.line();
+            clazz.suppressWarningsLine("unchecked", "rawtypes");
             clazz.block("fun execute(): List<Int>", method -> {
                 method.line("return listOf(");
                 method.indent(ret -> {
@@ -39,6 +40,7 @@ class KotlinClassFileContentDefaultTest {
             "",
             "class Logic {",
             "",
+            "    @Suppress(\"unchecked\", \"rawtypes\")",
             "    fun execute(): List<Int> {",
             "        return listOf(",
             "            1,",

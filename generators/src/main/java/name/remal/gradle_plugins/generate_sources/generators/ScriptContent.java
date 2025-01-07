@@ -12,6 +12,20 @@ public interface ScriptContent<Block extends ScriptContent<Block>>
     extends TextContent {
 
     /**
+     * Escape the provided string so that it's safe to put it in the language string.
+     *
+     * <p>Example (escaping line separators):
+     * <pre>{@code
+     * line("return \"%s\";", escapeString("multi\nline\nstring"));
+     * }</pre>
+     * Generates:
+     * <pre>{@code
+     * return "multi\nline\nstring";
+     * }</pre>
+     */
+    String escapeString(String string);
+
+    /**
      * Indents block of code.
      *
      * <p>Example:

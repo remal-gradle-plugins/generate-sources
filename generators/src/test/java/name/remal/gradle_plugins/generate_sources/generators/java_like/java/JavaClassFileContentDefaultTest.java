@@ -17,6 +17,7 @@ class JavaClassFileContentDefaultTest {
         content.addStaticImport(Arrays.class, "asList");
         content.block("public class " + content.getSimpleName(), clazz -> {
             clazz.line();
+            clazz.suppressWarningsLine("unchecked", "rawtypes");
             clazz.block("public static List<Integer> execute()", method -> {
                 method.line("return asList(");
                 method.indent(ret -> {
@@ -40,6 +41,7 @@ class JavaClassFileContentDefaultTest {
             "",
             "public class Logic {",
             "",
+            "    @SuppressWarnings({\"unchecked\", \"rawtypes\"})",
             "    public static List<Integer> execute() {",
             "        return asList(",
             "            1,",

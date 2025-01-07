@@ -17,6 +17,7 @@ class GroovyClassFileContentDefaultTest {
         content.addStaticImport(Arrays.class, "asList");
         content.block("class " + content.getSimpleName(), clazz -> {
             clazz.line();
+            clazz.suppressWarningsLine("unchecked", "rawtypes");
             clazz.block("static List<Integer> execute()", method -> {
                 method.line("return asList(");
                 method.indent(ret -> {
@@ -40,6 +41,7 @@ class GroovyClassFileContentDefaultTest {
             "",
             "class Logic {",
             "",
+            "    @SuppressWarnings({\"unchecked\", \"rawtypes\"})",
             "    static List<Integer> execute() {",
             "        return asList(",
             "            1,",
