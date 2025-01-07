@@ -103,7 +103,7 @@ public abstract class AbstractGenerateJavaLike<
         String simpleName,
         Action<? super ClassFileContent> action
     ) {
-        classFile(provider(packageName), provider(simpleName), action);
+        classFile(fixedProvider(packageName), fixedProvider(simpleName), action);
     }
 
 
@@ -143,7 +143,7 @@ public abstract class AbstractGenerateJavaLike<
         String relativePath,
         Action<? super FileContent> action
     ) {
-        scriptFile(provider(relativePath), action);
+        scriptFile(fixedProvider(relativePath), action);
     }
 
 

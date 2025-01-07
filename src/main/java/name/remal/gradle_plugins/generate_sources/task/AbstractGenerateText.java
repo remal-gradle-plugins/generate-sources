@@ -19,7 +19,7 @@ public abstract class AbstractGenerateText
 
     @Override
     public void textFile(String relativePath, Action<? super GeneratingWriter> action) {
-        textFile(provider(relativePath), action);
+        textFile(fixedProvider(relativePath), action);
     }
 
 }
