@@ -1,4 +1,4 @@
-**Tested on Java LTS versions from <!--property:java-runtime.min-version-->8<!--/property--> to <!--property:java-runtime.max-version-->17<!--/property-->.**
+**Tested on Java LTS versions from <!--property:java-runtime.min-version-->8<!--/property--> to <!--property:java-runtime.max-version-->21<!--/property-->.**
 
 **Tested on Gradle versions from <!--property:gradle-api.min-version-->7.1<!--/property--> to <!--property:gradle-api.max-version-->8.12<!--/property-->.**
 
@@ -9,7 +9,7 @@
 <!--plugin-usage:name.remal.generate-sources-->
 ```groovy
 plugins {
-    id 'name.remal.generate-sources' version '2.0.0-rc-1'
+    id 'name.remal.generate-sources' version '2.0.0-rc-2'
 }
 ```
 <!--/plugin-usage-->
