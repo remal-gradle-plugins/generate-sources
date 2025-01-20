@@ -48,8 +48,10 @@ generateSources.forMainSourceSet.java {
       block('public static List execute()') {
         line('return asList(')
         ident {
-          line('"' + escapeString('multi\bline\nstring') + '",') // `escapeString` will escape Java string
-          line('2')
+          lines(
+            "\"${escapeString('multi\bline\nstring')}\"", // `escapeString` will escape Java string
+            '2',
+          )
         }
         line(');')
       }
@@ -156,8 +158,10 @@ generateSources.forMainSourceSet.groovy {
       block('static List execute()') {
         line('return asList(')
         ident {
-          line('"' + escapeString('multi\bline\nstring') + '",') // `escapeString` will escape Groovy string
-          line('2,')
+          lines(
+            "\"${escapeString('multi\bline\nstring')}\"", // `escapeString` will escape Groovy string
+            '2,',
+          )
         }
         line(')')
       }
