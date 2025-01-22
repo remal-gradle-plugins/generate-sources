@@ -1,11 +1,10 @@
 package name.remal.gradle_plugins.generate_sources.generators;
 
 import static java.lang.String.format;
-import static java.util.Arrays.asList;
 
 import com.google.errorprone.annotations.FormatMethod;
 import com.google.errorprone.annotations.FormatString;
-import lombok.val;
+import java.util.List;
 import org.jetbrains.annotations.ApiStatus;
 
 public interface TextContent extends DelegatingCharSequence {
@@ -36,7 +35,7 @@ public interface TextContent extends DelegatingCharSequence {
      * Generate multiple lines delimited with a line separator.
      */
     default void lines(Iterable<? extends CharSequence> lines) {
-        for (val line : lines) {
+        for (var line : lines) {
             if (line != null) {
                 line(line);
             }
@@ -47,7 +46,7 @@ public interface TextContent extends DelegatingCharSequence {
      * Generate multiple lines delimited with a line separator.
      */
     default void lines(CharSequence... lines) {
-        lines(asList(lines));
+        lines(List.of(lines));
     }
 
 

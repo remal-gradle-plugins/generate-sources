@@ -8,7 +8,6 @@ import java.util.IdentityHashMap;
 import javax.inject.Inject;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Project;
 import org.gradle.api.model.ObjectFactory;
@@ -29,7 +28,7 @@ public abstract class GenerateSourcesExtension {
     }
 
     public GenerateSourcesSourceSet forSourceSet(SourceSet sourceSet, Action<GenerateSourcesSourceSet> action) {
-        val target = forSourceSet(sourceSet);
+        var target = forSourceSet(sourceSet);
         action.execute(target);
         return target;
     }
@@ -40,13 +39,13 @@ public abstract class GenerateSourcesExtension {
             throw new IllegalStateException("`java` plugin is not applied");
         }
 
-        val sourceSets = getProject().getExtensions().getByType(SourceSetContainer.class);
-        val mainSourceSet = sourceSets.getByName(MAIN_SOURCE_SET_NAME);
+        var sourceSets = getProject().getExtensions().getByType(SourceSetContainer.class);
+        var mainSourceSet = sourceSets.getByName(MAIN_SOURCE_SET_NAME);
         return forSourceSet(mainSourceSet);
     }
 
     public GenerateSourcesSourceSet forMainSourceSet(Action<GenerateSourcesSourceSet> action) {
-        val target = forMainSourceSet();
+        var target = forMainSourceSet();
         action.execute(target);
         return target;
     }

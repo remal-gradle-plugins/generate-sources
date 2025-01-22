@@ -1,14 +1,13 @@
 package name.remal.gradle_plugins.generate_sources;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
-import lombok.val;
 import name.remal.gradle_plugins.toolkit.testkit.functional.GradleProject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -57,14 +56,14 @@ class GenerateSourcesPluginFunctionalTest {
             project.assertBuildSuccessfully();
 
             try {
-                val mainClassesDir = project.getProjectDir().toPath()
+                var mainClassesDir = project.getProjectDir().toPath()
                     .resolve("build/classes/java/main");
-                val mainClassesDirUrl = mainClassesDir.toUri().toURL();
-                try (val classLoader = new URLClassLoader(new URL[]{mainClassesDirUrl}, null)) {
-                    val logicClass = classLoader.loadClass("pkg.Logic");
-                    val logicMethod = logicClass.getMethod("execute");
-                    val logicResult = logicMethod.invoke(null);
-                    assertEquals(asList(1, 2, 3), logicResult);
+                var mainClassesDirUrl = mainClassesDir.toUri().toURL();
+                try (var classLoader = new URLClassLoader(new URL[]{mainClassesDirUrl}, null)) {
+                    var logicClass = classLoader.loadClass("pkg.Logic");
+                    var logicMethod = logicClass.getMethod("execute");
+                    var logicResult = logicMethod.invoke(null);
+                    assertEquals(List.of(1, 2, 3), logicResult);
                 }
             } catch (Throwable e) {
                 throw new AssertionError("Assertion failed for " + project.getProjectDir(), e);
@@ -84,7 +83,7 @@ class GenerateSourcesPluginFunctionalTest {
             project.assertBuildSuccessfully();
 
             try {
-                val processedResourcePath = project.getProjectDir().toPath()
+                var processedResourcePath = project.getProjectDir().toPath()
                     .resolve("build/resources/main/dir/file.bin");
                 assertThat(processedResourcePath)
                     .isRegularFile()
@@ -107,7 +106,7 @@ class GenerateSourcesPluginFunctionalTest {
             project.assertBuildSuccessfully();
 
             try {
-                val processedResourcePath = project.getProjectDir()
+                var processedResourcePath = project.getProjectDir()
                     .toPath()
                     .resolve("build/resources/main/dir/file.txt");
                 assertThat(processedResourcePath)

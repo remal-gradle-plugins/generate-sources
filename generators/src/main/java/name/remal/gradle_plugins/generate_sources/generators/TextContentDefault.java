@@ -1,7 +1,6 @@
 package name.remal.gradle_plugins.generate_sources.generators;
 
 import static java.lang.String.join;
-import static java.util.Arrays.asList;
 import static name.remal.gradle_plugins.toolkit.ObjectUtils.isNotEmpty;
 
 import java.util.ArrayList;
@@ -50,7 +49,7 @@ public class TextContentDefault
             );
         }
 
-        this.chunks.addAll(asList(chunks));
+        this.chunks.addAll(List.of(chunks));
     }
 
     @SneakyThrows

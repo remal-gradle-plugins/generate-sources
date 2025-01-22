@@ -9,7 +9,6 @@ import groovy.lang.DelegatesTo;
 import groovy.transform.stc.ClosureParams;
 import groovy.transform.stc.SimpleType;
 import java.util.Objects;
-import lombok.val;
 import name.remal.gradle_plugins.generate_sources.generators.java_like.JavaLikeContent;
 import name.remal.gradle_plugins.toolkit.ObjectUtils;
 
@@ -60,7 +59,7 @@ public interface JavaContent
 
     @Override
     default void suppressWarningsLine(String... warnings) {
-        val content = new StringBuilder();
+        var content = new StringBuilder();
         content.append("@SuppressWarnings");
         if (ObjectUtils.isNotEmpty(warnings)) {
             content.append('(');

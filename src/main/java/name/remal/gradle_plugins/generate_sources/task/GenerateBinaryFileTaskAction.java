@@ -2,7 +2,6 @@ package name.remal.gradle_plugins.generate_sources.task;
 
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import lombok.val;
 import org.gradle.api.Action;
 import org.gradle.api.Describable;
 import org.gradle.api.Task;
@@ -21,9 +20,9 @@ class GenerateBinaryFileTaskAction implements Action<Task>, Describable {
 
     @SneakyThrows
     private void executeImpl(AbstractGenerate task) {
-        val relativePath = relativePathProvider.get();
-        val outputFilePath = task.getOutputDirectory().get().getAsFile().toPath().resolve(relativePath);
-        try (val out = new GeneratingOutputStream(outputFilePath)) {
+        var relativePath = relativePathProvider.get();
+        var outputFilePath = task.getOutputDirectory().get().getAsFile().toPath().resolve(relativePath);
+        try (var out = new GeneratingOutputStream(outputFilePath)) {
             action.execute(out);
         }
     }

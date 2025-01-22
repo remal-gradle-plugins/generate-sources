@@ -8,7 +8,6 @@ import java.util.function.Function;
 import javax.inject.Inject;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.val;
 import name.remal.gradle_plugins.generate_sources.task.AbstractGenerate;
 import name.remal.gradle_plugins.generate_sources.task.GenerateGroovy;
 import name.remal.gradle_plugins.generate_sources.task.GenerateJava;
@@ -51,7 +50,7 @@ public abstract class GenerateSourcesSourceSet {
     }
 
     public TaskProvider<GenerateJava> java(Action<GenerateJava> action) {
-        val generateProvider = java();
+        var generateProvider = java();
         generateProvider.configure(action);
         return generateProvider;
     }
@@ -72,7 +71,7 @@ public abstract class GenerateSourcesSourceSet {
     }
 
     public TaskProvider<GenerateResources> resources(Action<GenerateResources> action) {
-        val generateProvider = resources();
+        var generateProvider = resources();
         generateProvider.configure(action);
         return generateProvider;
     }
@@ -96,7 +95,7 @@ public abstract class GenerateSourcesSourceSet {
     }
 
     public TaskProvider<GenerateGroovy> groovy(Action<GenerateGroovy> action) {
-        val generateProvider = groovy();
+        var generateProvider = groovy();
         generateProvider.configure(action);
         return generateProvider;
     }
@@ -123,14 +122,14 @@ public abstract class GenerateSourcesSourceSet {
             ));
         }
 
-        val generateTaskName = sourceSet.getTaskName("generate", target);
+        var generateTaskName = sourceSet.getTaskName("generate", target);
 
         final TaskProvider<Generate> generateProvider;
         if (getTasks().getNames().contains(generateTaskName)) {
             generateProvider = getTasks().named(generateTaskName, generateTaskType);
         } else {
-            val processTaskName = processTaskNameGetter.apply(sourceSet);
-            val processTaskProvider = getTasks().named(processTaskName, compileTaskType);
+            var processTaskName = processTaskNameGetter.apply(sourceSet);
+            var processTaskProvider = getTasks().named(processTaskName, compileTaskType);
 
             generateProvider = getTasks().register(generateTaskName, generateTaskType, generate -> {
                 generate.setDescription(format(
@@ -142,7 +141,7 @@ public abstract class GenerateSourcesSourceSet {
                 configureGenerate.accept(generate, processTaskProvider);
             });
 
-            val outputDir = getObjects().fileCollection()
+            var outputDir = getObjects().fileCollection()
                 .builtBy(generateProvider)
                 .from(generateProvider.map(AbstractGenerate::getOutputDirectory));
             sourceSetSourcesGetter.apply(sourceSet).srcDir(outputDir);

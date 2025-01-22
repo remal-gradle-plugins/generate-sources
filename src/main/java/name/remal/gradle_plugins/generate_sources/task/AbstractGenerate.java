@@ -25,7 +25,6 @@ import java.util.Optional;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
-import lombok.val;
 import name.remal.gradle_plugins.toolkit.EditorConfig;
 import name.remal.gradle_plugins.toolkit.TaskPropertiesUtils;
 import org.gradle.api.Action;
@@ -78,7 +77,7 @@ public abstract class AbstractGenerate
         Provider<String> relativePath,
         Action<? super GeneratingOutputStream> action
     ) {
-        val callingLocationDirs = getCallingLocationDirs();
+        var callingLocationDirs = getCallingLocationDirs();
         if (isNotEmpty(callingLocationDirs)) {
             configureFileProperty(
                 getInputs().files(callingLocationDirs)
@@ -141,8 +140,8 @@ public abstract class AbstractGenerate
         binaryFile(
             relativePath,
             sneakyThrowsAction(out -> {
-                val editorConfig = new EditorConfig(getLayout().getProjectDirectory().getAsFile().toPath());
-                val generatingPath = out.getGeneratingPath();
+                var editorConfig = new EditorConfig(getLayout().getProjectDirectory().getAsFile().toPath());
+                var generatingPath = out.getGeneratingPath();
 
                 Charset detectedCharset = encoding
                     .map(name -> name.isEmpty() ? null : Charset.forName(name))
@@ -151,9 +150,9 @@ public abstract class AbstractGenerate
                     detectedCharset = editorConfig.getCharsetFor(generatingPath);
                 }
 
-                val detectedLineSeparator = editorConfig.getLineSeparatorFor(generatingPath);
+                var detectedLineSeparator = editorConfig.getLineSeparatorFor(generatingPath);
 
-                try (val writer = new GeneratingWriter(out, detectedCharset, detectedLineSeparator)) {
+                try (var writer = new GeneratingWriter(out, detectedCharset, detectedLineSeparator)) {
                     action.execute(writer);
                 }
             })
@@ -332,7 +331,7 @@ public abstract class AbstractGenerate
         }
 
         if (path instanceof Class) {
-            val uri = Optional.ofNullable(((Class<?>) path).getProtectionDomain())
+            var uri = Optional.ofNullable(((Class<?>) path).getProtectionDomain())
                 .map(ProtectionDomain::getCodeSource)
                 .map(CodeSource::getLocation)
                 .map(sneakyThrowsFunction(URL::toURI))
@@ -341,7 +340,7 @@ public abstract class AbstractGenerate
                 return null;
             }
 
-            val scheme = uri.getScheme();
+            var scheme = uri.getScheme();
             if (scheme.equals("file")) {
                 return uri;
             }

@@ -7,7 +7,6 @@ import com.google.common.base.Splitter;
 import com.google.errorprone.annotations.ForOverride;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
-import lombok.val;
 import org.gradle.api.Action;
 
 public abstract class AbstractScriptContent<Block extends ScriptContent<Block>>
@@ -47,7 +46,7 @@ public abstract class AbstractScriptContent<Block extends ScriptContent<Block>>
 
     private String indentImpl(Action<Block> action) {
         return withoutChunksAdding(() -> {
-            val block = newBlock();
+            var block = newBlock();
             action.execute(block);
 
             String blockContent = block.toString();
@@ -74,9 +73,9 @@ public abstract class AbstractScriptContent<Block extends ScriptContent<Block>>
 
     private String blockImpl(CharSequence string, Action<Block> action) {
         return withoutChunksAdding(() -> {
-            val content = new StringBuilder();
+            var content = new StringBuilder();
 
-            val blockStart = getBlockStart();
+            var blockStart = getBlockStart();
             if (blockStart.isEmpty()) {
                 if (string.length() > 0) {
                     content.append(string).append(lineSeparator);
@@ -91,7 +90,7 @@ public abstract class AbstractScriptContent<Block extends ScriptContent<Block>>
 
             content.append(indentImpl(action));
 
-            val blockEnd = getBlockEnd();
+            var blockEnd = getBlockEnd();
             if (!blockEnd.isEmpty()) {
                 content.append(getBlockEnd()).append(lineSeparator);
             }

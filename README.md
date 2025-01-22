@@ -192,3 +192,9 @@ class Logic {
 ```
 
 The generated file will be compiled by the `compileGroovy` task.
+
+# Migration guide
+
+## Version 1.* to 2.*
+
+The plugin was fully rewritten. There were no intentions to keep it backward compatible.

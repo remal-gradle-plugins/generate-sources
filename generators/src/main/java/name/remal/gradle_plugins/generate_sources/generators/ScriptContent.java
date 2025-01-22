@@ -30,7 +30,7 @@ public interface ScriptContent<Block extends ScriptContent<Block>>
      *
      * <p>Example:
      * <pre>{@code
-     * line("var list = asList(");
+     * line("var list = List.of(");
      * indent(inner -> {
      *     inner.line("1,");
      *     inner.line("2,");
@@ -40,7 +40,7 @@ public interface ScriptContent<Block extends ScriptContent<Block>>
      * }</pre>
      * Generates:
      * <pre>{@code
-     * var list = asList(
+     * var list = List.of(
      *     1,
      *     2,
      *     3
@@ -54,7 +54,7 @@ public interface ScriptContent<Block extends ScriptContent<Block>>
      *
      * <p>Example:
      * <pre>{@code
-     * line("var list = asList(");
+     * line("var list = List.of(");
      * indent(inner -> {
      *     inner.line("1,");
      *     inner.line("2,");
@@ -64,7 +64,7 @@ public interface ScriptContent<Block extends ScriptContent<Block>>
      * }</pre>
      * Generates:
      * <pre>{@code
-     * var list = asList(
+     * var list = List.of(
      *     1,
      *     2,
      *     3

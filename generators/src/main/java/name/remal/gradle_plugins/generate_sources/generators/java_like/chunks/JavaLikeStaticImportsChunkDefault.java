@@ -4,7 +4,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import lombok.Builder.Default;
 import lombok.experimental.SuperBuilder;
-import lombok.val;
 
 @SuperBuilder
 @SuppressWarnings("java:S1170")
@@ -21,8 +20,8 @@ public class JavaLikeStaticImportsChunkDefault extends AbstractJavaLikeChunk imp
             return "";
         }
 
-        val content = new StringBuilder();
-        for (val importName : staticImports) {
+        var content = new StringBuilder();
+        for (var importName : staticImports) {
             content
                 .append(staticImportKeyword)
                 .append(' ')

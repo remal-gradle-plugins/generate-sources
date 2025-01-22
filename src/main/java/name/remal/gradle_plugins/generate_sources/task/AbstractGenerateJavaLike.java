@@ -9,7 +9,6 @@ import static org.apache.commons.lang3.StringUtils.repeat;
 import com.google.errorprone.annotations.ForOverride;
 import java.nio.file.Path;
 import javax.annotation.Nullable;
-import lombok.val;
 import name.remal.gradle_plugins.generate_sources.generators.java_like.JavaLikeClassFileContent;
 import name.remal.gradle_plugins.generate_sources.generators.java_like.JavaLikeContent;
 import name.remal.gradle_plugins.generate_sources.generators.java_like.JavaLikeFileContent;
@@ -56,21 +55,21 @@ public abstract class AbstractGenerateJavaLike<
         Provider<String> simpleName,
         Action<? super ClassFileContent> action
     ) {
-        val packageNameFinalized = getObjects().property(String.class).value(packageName);
+        var packageNameFinalized = getObjects().property(String.class).value(packageName);
         packageNameFinalized.finalizeValueOnRead();
 
-        val simpleNameFinalized = getObjects().property(String.class).value(simpleName);
+        var simpleNameFinalized = getObjects().property(String.class).value(simpleName);
         simpleNameFinalized.finalizeValueOnRead();
 
-        val relativePath = getProviders().provider(() -> {
-            val result = new StringBuilder();
-            val packageNameStr = packageNameFinalized.getOrNull();
+        var relativePath = getProviders().provider(() -> {
+            var result = new StringBuilder();
+            var packageNameStr = packageNameFinalized.getOrNull();
             if (isNotEmpty(packageNameStr)) {
                 result.append(packageNameStr.replace('.', '/'));
                 result.append('/');
             }
             result.append(simpleNameFinalized.get());
-            val extension = getClassFileExtension();
+            var extension = getClassFileExtension();
             if (isNotEmpty(extension)) {
                 result.append('.').append(extension);
             }
@@ -78,9 +77,9 @@ public abstract class AbstractGenerateJavaLike<
         });
 
         textFile(relativePath, sneakyThrowsAction(writer -> {
-            val indent = getIndent(writer.getGeneratingPath());
-            val lineSeparator = writer.getLineSeparator();
-            val content = createClassFileContent(
+            var indent = getIndent(writer.getGeneratingPath());
+            var lineSeparator = writer.getLineSeparator();
+            var content = createClassFileContent(
                 packageNameFinalized.getOrNull(),
                 simpleNameFinalized.get(),
                 indent,
@@ -120,9 +119,9 @@ public abstract class AbstractGenerateJavaLike<
         Action<? super FileContent> action
     ) {
         textFile(relativePath, sneakyThrowsAction(writer -> {
-            val indent = getIndent(writer.getGeneratingPath());
-            val lineSeparator = writer.getLineSeparator();
-            val content = createFileContent(
+            var indent = getIndent(writer.getGeneratingPath());
+            var lineSeparator = writer.getLineSeparator();
+            var content = createFileContent(
                 indent,
                 lineSeparator
             );
@@ -149,17 +148,17 @@ public abstract class AbstractGenerateJavaLike<
 
     @Nullable
     private String getIndent(Path generatingPath) {
-        val editorConfig = new EditorConfig(getLayout().getProjectDirectory().getAsFile().toPath());
+        var editorConfig = new EditorConfig(getLayout().getProjectDirectory().getAsFile().toPath());
 
-        val indentStyle = editorConfig.getPropertiesFor(generatingPath).get("indent_style");
+        var indentStyle = editorConfig.getPropertiesFor(generatingPath).get("indent_style");
         if ("tab".equalsIgnoreCase(indentStyle)) {
             return "\t";
 
         } else {
-            val indentSizeString = editorConfig.getPropertiesFor(generatingPath).get("indent_size");
+            var indentSizeString = editorConfig.getPropertiesFor(generatingPath).get("indent_size");
             if (indentSizeString != null) {
                 try {
-                    val indentSize = max(1, parseInt(indentSizeString));
+                    var indentSize = max(1, parseInt(indentSizeString));
                     return repeat(' ', indentSize);
 
                 } catch (NumberFormatException ignored) {

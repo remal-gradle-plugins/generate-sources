@@ -5,14 +5,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
 import java.util.List;
-import lombok.val;
 import org.junit.jupiter.api.Test;
 
 class JavaClassFileContentDefaultTest {
 
     @Test
     void simple() {
-        val content = new JavaClassFileContentDefault("pkg", "Logic", null, null);
+        var content = new JavaClassFileContentDefault("pkg", "Logic", null, null);
         content.addImport(List.class);
         content.addStaticImport(Arrays.class, "asList");
         content.block("public class " + content.getSimpleName(), clazz -> {
@@ -30,7 +29,7 @@ class JavaClassFileContentDefaultTest {
             clazz.line();
         });
 
-        val contentString = content.toString();
+        var contentString = content.toString();
 
         assertThat(contentString).isEqualTo(join("\n", new String[]{
             "package pkg;",

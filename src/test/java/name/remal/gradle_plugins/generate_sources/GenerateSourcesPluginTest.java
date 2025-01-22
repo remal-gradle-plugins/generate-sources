@@ -7,7 +7,6 @@ import static name.remal.gradle_plugins.toolkit.testkit.ProjectValidations.execu
 import static org.assertj.core.api.Assertions.assertThat;
 
 import lombok.RequiredArgsConstructor;
-import lombok.val;
 import name.remal.gradle_plugins.toolkit.testkit.TaskValidations;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -25,67 +24,70 @@ class GenerateSourcesPluginTest {
     }
 
     @Test
+    @SuppressWarnings("java:S5841")
     void generateJavaDoesNotDependOnCompileJava() {
         project.getPluginManager().apply("java");
-        val generateJava = project
+        var generateJava = project
             .getExtensions()
             .getByType(GenerateSourcesExtension.class)
             .forMainSourceSet()
             .java()
             .get();
 
-        val generateJavaDependencies = generateJava
+        var generateJavaDependencies = generateJava
             .getTaskDependencies()
             .getDependencies(generateJava)
             .stream()
             .map(Task.class::cast)
             .collect(toList());
 
-        val compileJava = project.getTasks().getByName("compileJava");
+        var compileJava = project.getTasks().getByName("compileJava");
         assertThat(generateJavaDependencies)
             .doesNotContain(compileJava);
     }
 
     @Test
+    @SuppressWarnings("java:S5841")
     void generateResourcesDoesNotDependOnProcessResources() {
         project.getPluginManager().apply("java");
-        val generateResources = project
+        var generateResources = project
             .getExtensions()
             .getByType(GenerateSourcesExtension.class)
             .forMainSourceSet()
             .resources()
             .get();
 
-        val generateResourcesDependencies = generateResources
+        var generateResourcesDependencies = generateResources
             .getTaskDependencies()
             .getDependencies(generateResources)
             .stream()
             .map(Task.class::cast)
             .collect(toList());
 
-        val processResources = project.getTasks().getByName("processResources");
+        var processResources = project.getTasks().getByName("processResources");
         assertThat(generateResourcesDependencies)
             .doesNotContain(processResources);
     }
 
     @Test
+    @SuppressWarnings("java:S5841")
     void generateGroovyDoesNotDependOnCompileGroovy() {
         project.getPluginManager().apply("groovy");
-        val generateGroovy = project
+        var generateGroovy = project
             .getExtensions()
             .getByType(GenerateSourcesExtension.class)
             .forMainSourceSet()
             .groovy()
             .get();
 
-        val generateGroovyDependencies = generateGroovy
+        var generateGroovyDependencies = generateGroovy
             .getTaskDependencies()
             .getDependencies(generateGroovy)
             .stream()
             .map(Task.class::cast)
             .collect(toList());
 
-        val compileGroovy = project.getTasks().getByName("compileGroovy");
+        var compileGroovy = project.getTasks().getByName("compileGroovy");
         assertThat(generateGroovyDependencies)
             .doesNotContain(compileGroovy);
     }
@@ -101,10 +103,10 @@ class GenerateSourcesPluginTest {
 
         executeAfterEvaluateActions(project);
 
-        val taskClassNamePrefix = packageNameOf(GenerateSourcesPlugin.class) + '.';
+        var taskClassNamePrefix = packageNameOf(GenerateSourcesPlugin.class) + '.';
         project.getTasks().stream()
             .filter(task -> {
-                val taskClass = unwrapGeneratedSubclass(task.getClass());
+                var taskClass = unwrapGeneratedSubclass(task.getClass());
                 return taskClass.getName().startsWith(taskClassNamePrefix);
             })
             .map(TaskValidations::markTaskDependenciesAsSkipped)
