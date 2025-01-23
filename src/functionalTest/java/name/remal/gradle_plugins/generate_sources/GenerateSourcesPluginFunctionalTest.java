@@ -33,27 +33,26 @@ class GenerateSourcesPluginFunctionalTest {
         void beforeEach() {
             project.forBuildFile(build -> {
                 build.applyPlugin("java");
-                build.registerDefaultTask("classes");
             });
         }
 
         @Test
         void generateJava() {
-            project.getBuildFile().appendBlock("generateSources.forSourceSet(sourceSets.main)", forSourceSet -> {
-                forSourceSet.appendBlock("java", java -> {
-                    java.appendBlock("classFile('pkg', 'Logic')", classFile -> {
-                        classFile.appendBlock("block(\"public class ${simpleName}\")", classBlock -> {
-                            classBlock.append("addImport('java.util.List')");
-                            classBlock.appendBlock("block('public static List<Integer> execute()')", methodBlock -> {
-                                methodBlock.append("addStaticImport('java.util.Arrays', 'asList')");
-                                methodBlock.append("line('return asList(1, 2, 3);')");
+            project.getBuildFile().block("generateSources.forSourceSet(sourceSets.main)", forSourceSet -> {
+                forSourceSet.block("java", java -> {
+                    java.block("classFile('pkg', 'Logic')", classFile -> {
+                        classFile.block("block(\"public class ${simpleName}\")", classBlock -> {
+                            classBlock.line("addImport('java.util.List')");
+                            classBlock.block("block('public static List<Integer> execute()')", methodBlock -> {
+                                methodBlock.line("addStaticImport('java.util.Arrays', 'asList')");
+                                methodBlock.line("line('return asList(1, 2, 3);')");
                             });
                         });
                     });
                 });
             });
 
-            project.assertBuildSuccessfully();
+            project.assertBuildSuccessfully("classes");
 
             try {
                 var mainClassesDir = project.getProjectDir().toPath()
@@ -72,15 +71,15 @@ class GenerateSourcesPluginFunctionalTest {
 
         @Test
         void generateResources_binary() {
-            project.getBuildFile().appendBlock("generateSources.forSourceSet(sourceSets.main)", forSourceSet -> {
-                forSourceSet.appendBlock("resources", resources -> {
-                    resources.appendBlock("binaryFile('dir/file.bin')", binaryFile -> {
-                        binaryFile.append("write([1, 2, 3] as byte[])");
+            project.getBuildFile().block("generateSources.forSourceSet(sourceSets.main)", forSourceSet -> {
+                forSourceSet.block("resources", resources -> {
+                    resources.block("binaryFile('dir/file.bin')", binaryFile -> {
+                        binaryFile.line("write([1, 2, 3] as byte[])");
                     });
                 });
             });
 
-            project.assertBuildSuccessfully();
+            project.assertBuildSuccessfully("classes");
 
             try {
                 var processedResourcePath = project.getProjectDir().toPath()
@@ -95,15 +94,15 @@ class GenerateSourcesPluginFunctionalTest {
 
         @Test
         void generateResources_text() {
-            project.getBuildFile().appendBlock("generateSources.forSourceSet(sourceSets.main)", forSourceSet -> {
-                forSourceSet.appendBlock("resources", resources -> {
-                    resources.appendBlock("textFile('dir/file.txt')", binaryFile -> {
-                        binaryFile.append("write('123')");
+            project.getBuildFile().block("generateSources.forSourceSet(sourceSets.main)", forSourceSet -> {
+                forSourceSet.block("resources", resources -> {
+                    resources.block("textFile('dir/file.txt')", binaryFile -> {
+                        binaryFile.line("write('123')");
                     });
                 });
             });
 
-            project.assertBuildSuccessfully();
+            project.assertBuildSuccessfully("classes");
 
             try {
                 var processedResourcePath = project.getProjectDir()
