@@ -6,7 +6,7 @@ import lombok.experimental.SuperBuilder;
 
 @SuperBuilder
 @SuppressWarnings("java:S1170")
-public class JavaLikePackageChunkDefault extends AbstractJavaLikeChunk {
+public class JavaLikePackageChunkDefault extends AbstractJavaLikeChunk implements JavaLikePackageChunk {
 
     @Getter
     private final String packageName;
