@@ -25,6 +25,7 @@ class GenerateBinaryFileTaskAction implements Action<Task>, Describable {
         try (var out = new GeneratingOutputStream(outputFilePath)) {
             action.execute(out);
         }
+        task.setDidWork(true);
     }
 
     @Override
