@@ -15,8 +15,10 @@ import name.remal.gradle_plugins.generate_sources.generators.java_like.JavaLikeF
 import name.remal.gradle_plugins.toolkit.EditorConfig;
 import org.gradle.api.Action;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Internal;
 
+@CacheableTask
 public abstract class AbstractGenerateJavaLike<
     Block extends JavaLikeContent<Block>,
     FileContent extends JavaLikeFileContent<Block>,
