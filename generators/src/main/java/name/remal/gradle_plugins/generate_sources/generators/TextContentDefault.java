@@ -1,7 +1,7 @@
 package name.remal.gradle_plugins.generate_sources.generators;
 
 import static java.lang.String.join;
-import static name.remal.gradle_plugins.toolkit.ObjectUtils.isNotEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 import java.util.ArrayList;
 import java.util.List;
