@@ -1,7 +1,7 @@
 package name.remal.gradle_plugins.generate_sources.generators;
 
 import static java.util.stream.Collectors.joining;
-import static name.remal.gradle_plugins.toolkit.ObjectUtils.isNotEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 import com.google.common.base.Splitter;
 import com.google.errorprone.annotations.ForOverride;
