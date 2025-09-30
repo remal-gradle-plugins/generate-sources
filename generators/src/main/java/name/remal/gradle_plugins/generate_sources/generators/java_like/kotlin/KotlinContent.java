@@ -10,7 +10,7 @@ import groovy.transform.stc.ClosureParams;
 import groovy.transform.stc.SimpleType;
 import java.util.Objects;
 import name.remal.gradle_plugins.generate_sources.generators.java_like.JavaLikeContent;
-import name.remal.gradle_plugins.toolkit.ObjectUtils;
+import org.jspecify.annotations.Nullable;
 
 public interface KotlinContent
     extends JavaLikeContent<KotlinContent> {
@@ -58,15 +58,17 @@ public interface KotlinContent
     }
 
     @Override
-    default void suppressWarningsLine(String... warnings) {
+    @SuppressWarnings("java:S2259")
+    default void suppressWarningsLine(@Nullable String... warnings) {
         var content = new StringBuilder();
         content.append("@Suppress");
-        if (ObjectUtils.isNotEmpty(warnings)) {
+        if (warnings.length > 0) {
             content.append('(');
-            content.append(stream(warnings)
-                .filter(Objects::nonNull)
-                .map(warning -> '"' + escapeString(warning) + '"')
-                .collect(joining(", "))
+            content.append(
+                stream(warnings)
+                    .filter(Objects::nonNull)
+                    .map(warning -> '"' + escapeString(warning) + '"')
+                    .collect(joining(", "))
             );
             content.append(')');
         }
