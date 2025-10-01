@@ -6,7 +6,6 @@ import static lombok.AccessLevel.PUBLIC;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import javax.inject.Inject;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import name.remal.gradle_plugins.generate_sources.task.AbstractGenerate;
 import name.remal.gradle_plugins.generate_sources.task.GenerateGroovy;
@@ -17,6 +16,7 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.model.ObjectFactory;
+import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.GroovySourceDirectorySet;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.TaskContainer;
@@ -25,11 +25,10 @@ import org.gradle.api.tasks.compile.GroovyCompile;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.gradle.language.jvm.tasks.ProcessResources;
 
-@Getter
 @RequiredArgsConstructor(access = PUBLIC, onConstructor_ = {@Inject})
 public abstract class GenerateSourcesSourceSet {
 
-    private final SourceSet sourceSet;
+    private final Provider<SourceSet> sourceSetProvider;
 
 
     public TaskProvider<GenerateJava> java() {
@@ -49,7 +48,7 @@ public abstract class GenerateSourcesSourceSet {
         );
     }
 
-    public TaskProvider<GenerateJava> java(Action<GenerateJava> action) {
+    public TaskProvider<GenerateJava> java(Action<? super GenerateJava> action) {
         var generateProvider = java();
         generateProvider.configure(action);
         return generateProvider;
@@ -70,7 +69,7 @@ public abstract class GenerateSourcesSourceSet {
         );
     }
 
-    public TaskProvider<GenerateResources> resources(Action<GenerateResources> action) {
+    public TaskProvider<GenerateResources> resources(Action<? super GenerateResources> action) {
         var generateProvider = resources();
         generateProvider.configure(action);
         return generateProvider;
@@ -94,7 +93,7 @@ public abstract class GenerateSourcesSourceSet {
         );
     }
 
-    public TaskProvider<GenerateGroovy> groovy(Action<GenerateGroovy> action) {
+    public TaskProvider<GenerateGroovy> groovy(Action<? super GenerateGroovy> action) {
         var generateProvider = groovy();
         generateProvider.configure(action);
         return generateProvider;
@@ -122,6 +121,7 @@ public abstract class GenerateSourcesSourceSet {
             ));
         }
 
+        SourceSet sourceSet = sourceSetProvider.get();
         var generateTaskName = sourceSet.getTaskName("generate", target);
 
         final TaskProvider<Generate> generateProvider;

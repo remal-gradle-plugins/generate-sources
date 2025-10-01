@@ -38,13 +38,13 @@ public abstract class AbstractScriptContent<Block extends ScriptContent<Block>>
     }
 
     @Override
-    public void indent(Action<Block> action) {
+    public void indent(Action<? super Block> action) {
         addLastChunks(indentImpl(action));
     }
 
     private static final Pattern NEW_LINE = Pattern.compile("(\\r\\n)|(\\n\\r)|(\\r)|(\\n)");
 
-    private String indentImpl(Action<Block> action) {
+    private String indentImpl(Action<? super Block> action) {
         return withoutChunksAdding(() -> {
             var block = newBlock();
             action.execute(block);
@@ -67,11 +67,11 @@ public abstract class AbstractScriptContent<Block extends ScriptContent<Block>>
     }
 
     @Override
-    public void block(CharSequence statement, Action<Block> action) {
+    public void block(CharSequence statement, Action<? super Block> action) {
         addLastChunks(blockImpl(statement, action));
     }
 
-    private String blockImpl(CharSequence string, Action<Block> action) {
+    private String blockImpl(CharSequence string, Action<? super Block> action) {
         return withoutChunksAdding(() -> {
             var content = new StringBuilder();
 

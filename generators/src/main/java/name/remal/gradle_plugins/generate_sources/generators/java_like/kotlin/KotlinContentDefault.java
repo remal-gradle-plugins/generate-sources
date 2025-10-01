@@ -24,7 +24,7 @@ public class KotlinContentDefault
     }
 
     @Override
-    public void block(CharSequence statement, Action<KotlinContent> action) {
+    public void block(CharSequence statement, Action<? super KotlinContent> action) {
         if (isBlank(statement)) {
             statement = "run";
         }

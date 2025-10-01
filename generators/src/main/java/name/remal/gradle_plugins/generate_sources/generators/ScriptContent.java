@@ -47,7 +47,7 @@ public interface ScriptContent<Block extends ScriptContent<Block>>
      * );
      * }</pre>
      */
-    void indent(Action<Block> action);
+    void indent(Action<? super Block> action);
 
     /**
      * Indents block of code.
@@ -100,7 +100,7 @@ public interface ScriptContent<Block extends ScriptContent<Block>>
      */
     void block(
         CharSequence statement,
-        Action<Block> action
+        Action<? super Block> action
     );
 
     /**
@@ -151,7 +151,7 @@ public interface ScriptContent<Block extends ScriptContent<Block>>
      * <p>Curly braces are added automatically.
      */
     default void block(
-        Action<Block> action
+        Action<? super Block> action
     ) {
         block("", action);
     }
