@@ -148,36 +148,6 @@ public abstract class AbstractGenerate
         binaryFile(relativePath, binaryAction);
     }
 
-    @Value
-    private static class TextFileGenerator implements Action<GeneratingOutputStream> {
-
-        Path projectDirectory;
-        Provider<String> encoding;
-        Action<? super GeneratingWriter> action;
-
-        @Override
-        @SneakyThrows
-        @SuppressWarnings("java:S2259")
-        public void execute(GeneratingOutputStream out) {
-            var editorConfig = new EditorConfig(projectDirectory);
-            var generatingPath = out.getGeneratingPath();
-
-            Charset detectedCharset = encoding
-                .map(name -> name.isEmpty() ? null : Charset.forName(name))
-                .getOrNull();
-            if (detectedCharset == null) {
-                detectedCharset = editorConfig.getCharsetFor(generatingPath);
-            }
-
-            var detectedLineSeparator = editorConfig.getLineSeparatorFor(generatingPath);
-
-            try (var writer = new GeneratingWriter(out, detectedCharset, detectedLineSeparator)) {
-                action.execute(writer);
-            }
-        }
-
-    }
-
     /**
      * Configure a text file generation.
      *
@@ -341,6 +311,38 @@ public abstract class AbstractGenerate
             getInputs().dir(path).withPropertyName(propertyName)
         );
     }
+
+
+    @Value
+    private static class TextFileGenerator implements Action<GeneratingOutputStream> {
+
+        Path projectDirectory;
+        Provider<String> encoding;
+        Action<? super GeneratingWriter> action;
+
+        @Override
+        @SneakyThrows
+        @SuppressWarnings("java:S2259")
+        public void execute(GeneratingOutputStream out) {
+            var editorConfig = new EditorConfig(projectDirectory);
+            var generatingPath = out.getGeneratingPath();
+
+            Charset detectedCharset = encoding
+                .map(name -> name.isEmpty() ? null : Charset.forName(name))
+                .getOrNull();
+            if (detectedCharset == null) {
+                detectedCharset = editorConfig.getCharsetFor(generatingPath);
+            }
+
+            var detectedLineSeparator = editorConfig.getLineSeparatorFor(generatingPath);
+
+            try (var writer = new GeneratingWriter(out, detectedCharset, detectedLineSeparator)) {
+                action.execute(writer);
+            }
+        }
+
+    }
+
 
     @Nullable
     @Contract("null->null")
