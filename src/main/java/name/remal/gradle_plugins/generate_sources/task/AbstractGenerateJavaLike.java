@@ -8,7 +8,6 @@ import static org.apache.commons.lang3.StringUtils.repeat;
 
 import com.google.errorprone.annotations.ForOverride;
 import java.nio.file.Path;
-import javax.annotation.Nullable;
 import name.remal.gradle_plugins.generate_sources.generators.java_like.JavaLikeClassFileContent;
 import name.remal.gradle_plugins.generate_sources.generators.java_like.JavaLikeContent;
 import name.remal.gradle_plugins.generate_sources.generators.java_like.JavaLikeFileContent;
@@ -17,6 +16,7 @@ import org.gradle.api.Action;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Internal;
+import org.jspecify.annotations.Nullable;
 
 @CacheableTask
 public abstract class AbstractGenerateJavaLike<

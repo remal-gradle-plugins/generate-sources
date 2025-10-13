@@ -2,9 +2,9 @@ package name.remal.gradle_plugins.generate_sources.generators.java_like.java;
 
 import static name.remal.gradle_plugins.toolkit.ObjectUtils.defaultValue;
 
-import javax.annotation.Nullable;
 import lombok.Getter;
 import name.remal.gradle_plugins.generate_sources.generators.java_like.chunks.JavaLikePackageChunkDefault;
+import org.jspecify.annotations.Nullable;
 
 public class JavaClassFileContentDefault
     extends JavaFileContentDefault

@@ -1,12 +1,12 @@
 package name.remal.gradle_plugins.generate_sources.task;
 
-import javax.annotation.Nullable;
 import name.remal.gradle_plugins.generate_sources.generators.java_like.java.JavaClassFileContent;
 import name.remal.gradle_plugins.generate_sources.generators.java_like.java.JavaClassFileContentDefault;
 import name.remal.gradle_plugins.generate_sources.generators.java_like.java.JavaContent;
 import name.remal.gradle_plugins.generate_sources.generators.java_like.java.JavaFileContent;
 import name.remal.gradle_plugins.generate_sources.generators.java_like.java.JavaFileContentDefault;
 import org.gradle.api.tasks.CacheableTask;
+import org.jspecify.annotations.Nullable;
 
 @CacheableTask
 public abstract class GenerateJava

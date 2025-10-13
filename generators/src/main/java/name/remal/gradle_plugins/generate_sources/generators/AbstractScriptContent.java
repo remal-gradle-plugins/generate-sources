@@ -6,8 +6,8 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import com.google.common.base.Splitter;
 import com.google.errorprone.annotations.ForOverride;
 import java.util.regex.Pattern;
-import javax.annotation.Nullable;
 import org.gradle.api.Action;
+import org.jspecify.annotations.Nullable;
 
 public abstract class AbstractScriptContent<Block extends ScriptContent<Block>>
     extends TextContentDefault

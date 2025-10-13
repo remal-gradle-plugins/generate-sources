@@ -6,8 +6,8 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
-import javax.annotation.Nullable;
 import lombok.SneakyThrows;
+import org.jspecify.annotations.Nullable;
 
 public class TextContentDefault
     implements TextContent {
