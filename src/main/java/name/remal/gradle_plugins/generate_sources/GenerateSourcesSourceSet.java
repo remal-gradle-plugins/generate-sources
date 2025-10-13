@@ -145,8 +145,6 @@ public abstract class GenerateSourcesSourceSet {
                 .builtBy(generateProvider)
                 .from(generateProvider.map(AbstractGenerate::getOutputDirectory));
             sourceSetSourcesGetter.apply(sourceSet).srcDir(outputDir);
-
-            processTaskProvider.configure(processTask -> processTask.dependsOn(generateProvider));
         }
 
         return generateProvider;
