@@ -4,10 +4,12 @@ import static java.util.Arrays.stream;
 import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.toList;
 import static name.remal.gradle_plugins.build_time_constants.api.BuildTimeConstants.getClassName;
+import static name.remal.gradle_plugins.toolkit.GradleVersionUtils.isCurrentGradleVersionLessThan;
 import static name.remal.gradle_plugins.toolkit.ObjectUtils.isNotEmpty;
 import static name.remal.gradle_plugins.toolkit.PathUtils.deleteRecursively;
 import static name.remal.gradle_plugins.toolkit.SneakyThrowUtils.sneakyThrowsAction;
 import static name.remal.gradle_plugins.toolkit.SneakyThrowUtils.sneakyThrowsFunction;
+import static name.remal.gradle_plugins.toolkit.TaskUtils.markAsNotCompatibleWithConfigurationCache;
 import static name.remal.gradle_plugins.toolkit.reflection.ReflectionUtils.isClassPresent;
 import static name.remal.gradle_plugins.toolkit.reflection.WhoCalledUtils.getCallingClasses;
 import static org.gradle.api.tasks.PathSensitivity.RELATIVE;
@@ -48,6 +50,16 @@ import org.jspecify.annotations.Nullable;
 @CacheableTask
 public abstract class AbstractGenerate
     extends DefaultTask {
+
+    {
+        if (isCurrentGradleVersionLessThan("8.0")) {
+            markAsNotCompatibleWithConfigurationCache(
+                this,
+                "Lambda serialization is broken in Configuration Cache of Gradle < 8.0"
+            );
+        }
+    }
+
 
     /**
      * The directory property that represents the directory to generate source files into.

@@ -2,6 +2,7 @@ package name.remal.gradle_plugins.generate_sources;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static lombok.AccessLevel.PROTECTED;
+import static name.remal.gradle_plugins.toolkit.GradleVersionUtils.isCurrentGradleVersionLessThan;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -32,6 +33,10 @@ abstract class GenerateSourcesPluginFunctionalTestBase<GradleProjectType extends
         project.forBuildFile(build -> {
             build.applyPlugin("name.remal.generate-sources");
         });
+
+        if (isCurrentGradleVersionLessThan("8.0")) {
+            project.withoutConfigurationCache();
+        }
 
         executeBeforeEachActions();
     }
