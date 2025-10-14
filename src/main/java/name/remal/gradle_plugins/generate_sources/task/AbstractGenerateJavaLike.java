@@ -31,9 +31,11 @@ public abstract class AbstractGenerateJavaLike<
     protected abstract String getClassFileExtension();
 
     @ForOverride
+    @Internal
     protected abstract FileContentFactory<FileContent> getFileContentFactory();
 
     @ForOverride
+    @Internal
     protected abstract ClassFileContentFactory<ClassFileContent> getClassFileContentFactory();
 
 
