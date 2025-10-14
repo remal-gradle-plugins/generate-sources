@@ -1,7 +1,7 @@
 package name.remal.gradle_plugins.generate_sources.generators.java_like.java;
 
-import javax.annotation.Nullable;
 import name.remal.gradle_plugins.generate_sources.generators.java_like.AbstractJavaLikeContent;
+import org.jspecify.annotations.Nullable;
 
 public class JavaContentDefault
     extends AbstractJavaLikeContent<JavaContent>

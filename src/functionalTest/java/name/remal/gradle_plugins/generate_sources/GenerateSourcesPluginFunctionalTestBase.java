@@ -2,10 +2,11 @@ package name.remal.gradle_plugins.generate_sources;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static lombok.AccessLevel.PROTECTED;
+import static name.remal.gradle_plugins.toolkit.GradleVersionUtils.isCurrentGradleVersionLessThan;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
+import com.google.errorprone.annotations.ForOverride;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.List;
@@ -20,14 +21,24 @@ import org.junit.jupiter.api.Test;
 @RequiredArgsConstructor(access = PROTECTED)
 abstract class GenerateSourcesPluginFunctionalTestBase<GradleProjectType extends AbstractGradleProject<?, ?, ?, ?>> {
 
+    @ForOverride
+    protected void executeBeforeEachActions() {
+    }
+
+
     protected final GradleProjectType project;
 
     @BeforeEach
-    @OverridingMethodsMustInvokeSuper
-    protected void beforeEach() {
+    protected final void beforeEach() {
         project.forBuildFile(build -> {
             build.applyPlugin("name.remal.generate-sources");
         });
+
+        if (isCurrentGradleVersionLessThan("8.0")) {
+            project.withoutConfigurationCache();
+        }
+
+        executeBeforeEachActions();
     }
 
 
@@ -43,7 +54,7 @@ abstract class GenerateSourcesPluginFunctionalTestBase<GradleProjectType extends
 
         @Test
         void generateJava() {
-            project.getBuildFile().block("generateSources.forSourceSet(sourceSets.main)", forSourceSet -> {
+            project.getBuildFile().block("generateSources.forMainSourceSet", forSourceSet -> {
                 forSourceSet.block("java", java -> {
                     java.block("classFile(\"pkg\", \"Logic\")", classFile -> {
                         classFile.block("block(\"public class ${simpleName}\")", classBlock -> {
@@ -76,7 +87,7 @@ abstract class GenerateSourcesPluginFunctionalTestBase<GradleProjectType extends
 
         @Test
         void generateResources_binary() {
-            project.getBuildFile().block("generateSources.forSourceSet(sourceSets.main)", forSourceSet -> {
+            project.getBuildFile().block("generateSources.forMainSourceSet", forSourceSet -> {
                 forSourceSet.block("resources", resources -> {
                     resources.block("binaryFile(\"dir/file.bin\")", binaryFile -> {
                         if (project instanceof GradleProject) {
@@ -105,7 +116,7 @@ abstract class GenerateSourcesPluginFunctionalTestBase<GradleProjectType extends
 
         @Test
         void generateResources_text() {
-            project.getBuildFile().block("generateSources.forSourceSet(sourceSets.main)", forSourceSet -> {
+            project.getBuildFile().block("generateSources.forMainSourceSet", forSourceSet -> {
                 forSourceSet.block("resources", resources -> {
                     resources.block("textFile(\"dir/file.txt\")", binaryFile -> {
                         binaryFile.line("write(\"123\")");

@@ -8,4 +8,10 @@ class GenerateSourcesPluginKtsFunctionalTest extends GenerateSourcesPluginFuncti
         super(project);
     }
 
+    @Override
+    protected void executeBeforeEachActions() {
+        // Kotlin-DSL *tests* fail with Configuration Cache, but these scenarios work in a real project
+        project.withoutConfigurationCache();
+    }
+
 }

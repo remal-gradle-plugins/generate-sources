@@ -8,7 +8,6 @@ import static org.apache.commons.lang3.StringUtils.repeat;
 
 import com.google.errorprone.annotations.ForOverride;
 import java.nio.file.Path;
-import javax.annotation.Nullable;
 import name.remal.gradle_plugins.generate_sources.generators.java_like.JavaLikeClassFileContent;
 import name.remal.gradle_plugins.generate_sources.generators.java_like.JavaLikeContent;
 import name.remal.gradle_plugins.generate_sources.generators.java_like.JavaLikeFileContent;
@@ -17,6 +16,7 @@ import org.gradle.api.Action;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Internal;
+import org.jspecify.annotations.Nullable;
 
 @CacheableTask
 public abstract class AbstractGenerateJavaLike<
@@ -27,22 +27,16 @@ public abstract class AbstractGenerateJavaLike<
     extends AbstractGenerateText {
 
     @ForOverride
-    protected abstract FileContent createFileContent(
-        @Nullable String indent,
-        @Nullable String lineSeparator
-    );
-
-    @ForOverride
     @Internal
     protected abstract String getClassFileExtension();
 
     @ForOverride
-    protected abstract ClassFileContent createClassFileContent(
-        @Nullable String packageName,
-        String simpleName,
-        @Nullable String indent,
-        @Nullable String lineSeparator
-    );
+    @Internal
+    protected abstract FileContentFactory<FileContent> getFileContentFactory();
+
+    @ForOverride
+    @Internal
+    protected abstract ClassFileContentFactory<ClassFileContent> getClassFileContentFactory();
 
 
     /**
@@ -78,10 +72,14 @@ public abstract class AbstractGenerateJavaLike<
             return result.toString();
         });
 
+        var projectDir = getLayout().getProjectDirectory();
+
+        var contentFactory = getClassFileContentFactory();
+
         textFile(relativePath, sneakyThrowsAction(writer -> {
-            var indent = getIndent(writer.getGeneratingPath());
+            var indent = getIndent(projectDir.getAsFile().toPath(), writer.getGeneratingPath());
             var lineSeparator = writer.getLineSeparator();
-            var content = createClassFileContent(
+            var content = contentFactory.createClassFileContent(
                 packageNameFinalized.getOrNull(),
                 simpleNameFinalized.get(),
                 indent,
@@ -120,10 +118,14 @@ public abstract class AbstractGenerateJavaLike<
         Provider<String> relativePath,
         Action<? super FileContent> action
     ) {
+        var projectDir = getLayout().getProjectDirectory();
+
+        var contentFactory = getFileContentFactory();
+
         textFile(relativePath, sneakyThrowsAction(writer -> {
-            var indent = getIndent(writer.getGeneratingPath());
+            var indent = getIndent(projectDir.getAsFile().toPath(), writer.getGeneratingPath());
             var lineSeparator = writer.getLineSeparator();
-            var content = createFileContent(
+            var content = contentFactory.createFileContent(
                 indent,
                 lineSeparator
             );
@@ -149,8 +151,8 @@ public abstract class AbstractGenerateJavaLike<
 
 
     @Nullable
-    private String getIndent(Path generatingPath) {
-        var editorConfig = new EditorConfig(getLayout().getProjectDirectory().getAsFile().toPath());
+    private static String getIndent(Path projectDir, Path generatingPath) {
+        var editorConfig = new EditorConfig(projectDir);
 
         var indentStyle = editorConfig.getPropertiesFor(generatingPath).get("indent_style");
         if ("tab".equalsIgnoreCase(indentStyle)) {

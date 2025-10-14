@@ -1,7 +1,7 @@
 package name.remal.gradle_plugins.generate_sources.generators.java_like.kotlin;
 
-import javax.annotation.Nullable;
 import name.remal.gradle_plugins.generate_sources.generators.java_like.chunks.JavaLikeImportsChunkDefault;
+import org.jspecify.annotations.Nullable;
 
 public class KotlinFileContentDefault
     extends KotlinContentDefault

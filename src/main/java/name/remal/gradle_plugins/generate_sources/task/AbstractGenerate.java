@@ -4,10 +4,12 @@ import static java.util.Arrays.stream;
 import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.toList;
 import static name.remal.gradle_plugins.build_time_constants.api.BuildTimeConstants.getClassName;
+import static name.remal.gradle_plugins.toolkit.GradleVersionUtils.isCurrentGradleVersionLessThan;
 import static name.remal.gradle_plugins.toolkit.ObjectUtils.isNotEmpty;
 import static name.remal.gradle_plugins.toolkit.PathUtils.deleteRecursively;
 import static name.remal.gradle_plugins.toolkit.SneakyThrowUtils.sneakyThrowsAction;
 import static name.remal.gradle_plugins.toolkit.SneakyThrowUtils.sneakyThrowsFunction;
+import static name.remal.gradle_plugins.toolkit.TaskUtils.markAsNotCompatibleWithConfigurationCache;
 import static name.remal.gradle_plugins.toolkit.reflection.ReflectionUtils.isClassPresent;
 import static name.remal.gradle_plugins.toolkit.reflection.WhoCalledUtils.getCallingClasses;
 import static org.gradle.api.tasks.PathSensitivity.RELATIVE;
@@ -23,7 +25,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 import name.remal.gradle_plugins.toolkit.EditorConfig;
 import name.remal.gradle_plugins.toolkit.TaskPropertiesUtils;
@@ -44,10 +45,21 @@ import org.gradle.api.tasks.TaskInputPropertyBuilder;
 import org.gradle.api.tasks.TaskInputs;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.Contract;
+import org.jspecify.annotations.Nullable;
 
 @CacheableTask
 public abstract class AbstractGenerate
     extends DefaultTask {
+
+    {
+        if (isCurrentGradleVersionLessThan("8.0")) {
+            markAsNotCompatibleWithConfigurationCache(
+                this,
+                "Lambda serialization is broken in Configuration Cache of Gradle < 8.0"
+            );
+        }
+    }
+
 
     /**
      * The directory property that represents the directory to generate source files into.
@@ -139,26 +151,24 @@ public abstract class AbstractGenerate
         Provider<String> encoding,
         Action<? super GeneratingWriter> action
     ) {
-        binaryFile(
-            relativePath,
-            sneakyThrowsAction(out -> {
-                var editorConfig = new EditorConfig(getLayout().getProjectDirectory().getAsFile().toPath());
-                var generatingPath = out.getGeneratingPath();
+        var projectDir = getLayout().getProjectDirectory();
+        binaryFile(relativePath, sneakyThrowsAction(out -> {
+            var editorConfig = new EditorConfig(projectDir.getAsFile().toPath());
+            var generatingPath = out.getGeneratingPath();
 
-                Charset detectedCharset = encoding
-                    .map(name -> name.isEmpty() ? null : Charset.forName(name))
-                    .getOrNull();
-                if (detectedCharset == null) {
-                    detectedCharset = editorConfig.getCharsetFor(generatingPath);
-                }
+            var detectedCharset = encoding
+                .map(name -> name.isEmpty() ? null : Charset.forName(name))
+                .getOrNull();
+            if (detectedCharset == null) {
+                detectedCharset = editorConfig.getCharsetFor(generatingPath);
+            }
 
-                var detectedLineSeparator = editorConfig.getLineSeparatorFor(generatingPath);
+            var detectedLineSeparator = editorConfig.getLineSeparatorFor(generatingPath);
 
-                try (var writer = new GeneratingWriter(out, detectedCharset, detectedLineSeparator)) {
-                    action.execute(writer);
-                }
-            })
-        );
+            try (var writer = new GeneratingWriter(out, detectedCharset, detectedLineSeparator)) {
+                action.execute(writer);
+            }
+        }));
     }
 
     /**
@@ -324,6 +334,7 @@ public abstract class AbstractGenerate
             getInputs().dir(path).withPropertyName(propertyName)
         );
     }
+
 
     @Nullable
     @Contract("null->null")
