@@ -6,19 +6,10 @@ import name.remal.gradle_plugins.generate_sources.generators.java_like.groovy.Gr
 import name.remal.gradle_plugins.generate_sources.generators.java_like.groovy.GroovyFileContent;
 import name.remal.gradle_plugins.generate_sources.generators.java_like.groovy.GroovyFileContentDefault;
 import org.gradle.api.tasks.CacheableTask;
-import org.jspecify.annotations.Nullable;
 
 @CacheableTask
 public abstract class GenerateGroovy
     extends AbstractGenerateJavaLike<GroovyContent, GroovyFileContent, GroovyClassFileContent> {
-
-    @Override
-    protected GroovyFileContent createFileContent(
-        @Nullable String indent,
-        @Nullable String lineSeparator
-    ) {
-        return new GroovyFileContentDefault(indent, lineSeparator);
-    }
 
     @Override
     protected String getClassFileExtension() {
@@ -26,13 +17,13 @@ public abstract class GenerateGroovy
     }
 
     @Override
-    protected GroovyClassFileContent createClassFileContent(
-        @Nullable String packageName,
-        String simpleName,
-        @Nullable String indent,
-        @Nullable String lineSeparator
-    ) {
-        return new GroovyClassFileContentDefault(packageName, simpleName, indent, lineSeparator);
+    protected FileContentFactory<GroovyFileContent> getFileContentFactory() {
+        return GroovyFileContentDefault::new;
+    }
+
+    @Override
+    protected ClassFileContentFactory<GroovyClassFileContent> getClassFileContentFactory() {
+        return GroovyClassFileContentDefault::new;
     }
 
 }

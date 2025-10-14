@@ -6,6 +6,7 @@ import static java.util.stream.Collectors.toList;
 import static name.remal.gradle_plugins.build_time_constants.api.BuildTimeConstants.getClassName;
 import static name.remal.gradle_plugins.toolkit.ObjectUtils.isNotEmpty;
 import static name.remal.gradle_plugins.toolkit.PathUtils.deleteRecursively;
+import static name.remal.gradle_plugins.toolkit.SneakyThrowUtils.sneakyThrowsAction;
 import static name.remal.gradle_plugins.toolkit.SneakyThrowUtils.sneakyThrowsFunction;
 import static name.remal.gradle_plugins.toolkit.reflection.ReflectionUtils.isClassPresent;
 import static name.remal.gradle_plugins.toolkit.reflection.WhoCalledUtils.getCallingClasses;
@@ -23,8 +24,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
 import javax.inject.Inject;
-import lombok.SneakyThrows;
-import lombok.Value;
 import name.remal.gradle_plugins.toolkit.EditorConfig;
 import name.remal.gradle_plugins.toolkit.TaskPropertiesUtils;
 import org.gradle.api.Action;
@@ -140,12 +139,24 @@ public abstract class AbstractGenerate
         Provider<String> encoding,
         Action<? super GeneratingWriter> action
     ) {
-        var binaryAction = new TextFileGenerator(
-            getLayout().getProjectDirectory().getAsFile().toPath(),
-            encoding,
-            action
-        );
-        binaryFile(relativePath, binaryAction);
+        var projectDir = getLayout().getProjectDirectory();
+        binaryFile(relativePath, sneakyThrowsAction(out -> {
+            var editorConfig = new EditorConfig(projectDir.getAsFile().toPath());
+            var generatingPath = out.getGeneratingPath();
+
+            var detectedCharset = encoding
+                .map(name -> name.isEmpty() ? null : Charset.forName(name))
+                .getOrNull();
+            if (detectedCharset == null) {
+                detectedCharset = editorConfig.getCharsetFor(generatingPath);
+            }
+
+            var detectedLineSeparator = editorConfig.getLineSeparatorFor(generatingPath);
+
+            try (var writer = new GeneratingWriter(out, detectedCharset, detectedLineSeparator)) {
+                action.execute(writer);
+            }
+        }));
     }
 
     /**
@@ -310,37 +321,6 @@ public abstract class AbstractGenerate
         return configureFileProperty(
             getInputs().dir(path).withPropertyName(propertyName)
         );
-    }
-
-
-    @Value
-    private static class TextFileGenerator implements Action<GeneratingOutputStream> {
-
-        Path projectDirectory;
-        Provider<String> encoding;
-        Action<? super GeneratingWriter> action;
-
-        @Override
-        @SneakyThrows
-        @SuppressWarnings("java:S2259")
-        public void execute(GeneratingOutputStream out) {
-            var editorConfig = new EditorConfig(projectDirectory);
-            var generatingPath = out.getGeneratingPath();
-
-            Charset detectedCharset = encoding
-                .map(name -> name.isEmpty() ? null : Charset.forName(name))
-                .getOrNull();
-            if (detectedCharset == null) {
-                detectedCharset = editorConfig.getCharsetFor(generatingPath);
-            }
-
-            var detectedLineSeparator = editorConfig.getLineSeparatorFor(generatingPath);
-
-            try (var writer = new GeneratingWriter(out, detectedCharset, detectedLineSeparator)) {
-                action.execute(writer);
-            }
-        }
-
     }
 
 
