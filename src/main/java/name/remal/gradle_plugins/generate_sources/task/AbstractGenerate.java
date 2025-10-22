@@ -1,33 +1,28 @@
 package name.remal.gradle_plugins.generate_sources.task;
 
-import static java.util.Arrays.stream;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static java.lang.StackWalker.Option.RETAIN_CLASS_REFERENCE;
+import static java.nio.file.Files.isDirectory;
 import static java.util.function.Predicate.not;
-import static java.util.stream.Collectors.toList;
-import static name.remal.gradle_plugins.build_time_constants.api.BuildTimeConstants.getClassName;
 import static name.remal.gradle_plugins.toolkit.GradleVersionUtils.isCurrentGradleVersionLessThan;
-import static name.remal.gradle_plugins.toolkit.ObjectUtils.isNotEmpty;
 import static name.remal.gradle_plugins.toolkit.PathUtils.deleteRecursively;
 import static name.remal.gradle_plugins.toolkit.SneakyThrowUtils.sneakyThrowsAction;
 import static name.remal.gradle_plugins.toolkit.SneakyThrowUtils.sneakyThrowsFunction;
 import static name.remal.gradle_plugins.toolkit.TaskUtils.markAsNotCompatibleWithConfigurationCache;
-import static name.remal.gradle_plugins.toolkit.reflection.ReflectionUtils.isClassPresent;
-import static name.remal.gradle_plugins.toolkit.reflection.WhoCalledUtils.getCallingClasses;
-import static org.gradle.api.tasks.PathSensitivity.RELATIVE;
+import static org.gradle.api.tasks.PathSensitivity.ABSOLUTE;
 
+import java.lang.StackWalker.StackFrame;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.StreamSupport;
+import java.util.Set;
 import javax.inject.Inject;
 import name.remal.gradle_plugins.toolkit.EditorConfig;
-import name.remal.gradle_plugins.toolkit.TaskPropertiesUtils;
 import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.file.DirectoryProperty;
@@ -37,25 +32,19 @@ import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.ClasspathNormalizer;
-import org.gradle.api.tasks.IgnoreEmptyDirectories;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.api.tasks.TaskInputFilePropertyBuilder;
-import org.gradle.api.tasks.TaskInputPropertyBuilder;
-import org.gradle.api.tasks.TaskInputs;
 import org.intellij.lang.annotations.Language;
-import org.jetbrains.annotations.Contract;
 import org.jspecify.annotations.Nullable;
 
 @CacheableTask
-public abstract class AbstractGenerate
-    extends DefaultTask {
+public abstract class AbstractGenerate extends DefaultTask {
 
     {
         if (isCurrentGradleVersionLessThan("8.0")) {
             markAsNotCompatibleWithConfigurationCache(
                 this,
-                "Lambda serialization is broken in Configuration Cache of Gradle < 8.0"
+                "Lambda serialization is broken in Configuration Cache of Gradle before 8"
             );
         }
     }
@@ -69,14 +58,15 @@ public abstract class AbstractGenerate
     public abstract DirectoryProperty getOutputDirectory();
 
     {
-        getOutputDirectory().convention(getLayout().getBuildDirectory()
-            .dir("generated/" + getName())
+        getOutputDirectory().convention(
+            getLayout().getBuildDirectory().dir("generated/" + getName())
         );
     }
 
 
     @TaskAction
     protected final void deleteOutputDir() {
+        getOutputDirectory().finalizeValue();
         deleteRecursively(getOutputDirectory().get().getAsFile().toPath());
     }
 
@@ -91,15 +81,23 @@ public abstract class AbstractGenerate
         Provider<String> relativePath,
         Action<? super GeneratingOutputStream> action
     ) {
-        var callingLocationDirs = getCallingLocationDirs();
-        if (isNotEmpty(callingLocationDirs)) {
-            configureFileProperty(
-                getInputs().files(callingLocationDirs)
-            )
-                .withNormalizer(ClasspathNormalizer.class);
+        if (getState().isConfigurable()) {
+            var callingScriptLocations = getCallingScriptLocations();
+            callingScriptLocations.forEach(location -> {
+                getLogger().debug("Add calling script location as an input dir: {}", location);
+                getInputs().dir(location)
+                    .optional()
+                    .withPathSensitivity(ABSOLUTE)
+                    .withNormalizer(ClasspathNormalizer.class);
+            });
         }
 
-        doLast(new GenerateBinaryFileTaskAction(relativePath, action));
+        var taskAction = new GenerateBinaryFileTaskAction(relativePath, action);
+        if (getState().getExecuting()) {
+            taskAction.execute(this);
+        } else {
+            doLast(taskAction);
+        }
     }
 
     /**
@@ -113,23 +111,6 @@ public abstract class AbstractGenerate
         Action<? super GeneratingOutputStream> action
     ) {
         binaryFile(fixedProvider(relativePath), action);
-    }
-
-    private static List<Path> getCallingLocationDirs() {
-        return getCallingClasses(2).stream()
-            .filter(not(AbstractGenerate.class::isAssignableFrom))
-            .map(Class::getProtectionDomain)
-            .filter(Objects::nonNull)
-            .map(ProtectionDomain::getCodeSource)
-            .filter(Objects::nonNull)
-            .map(CodeSource::getLocation)
-            .filter(Objects::nonNull)
-            .filter(url -> url.getProtocol().equals("file"))
-            .map(sneakyThrowsFunction(URL::toURI))
-            .distinct()
-            .map(Paths::get)
-            .filter(Files::isDirectory)
-            .collect(toList());
     }
 
 
@@ -252,152 +233,34 @@ public abstract class AbstractGenerate
     }
 
 
-    /**
-     * Register an optional input property.
-     * See {@link TaskInputs#property(String, Object)}.
-     */
-    public final TaskInputPropertyBuilder withInputProperty(String propertyName, @Nullable Object value) {
-        return getInputs().property(propertyName, value)
-            .optional(true);
-    }
-
-    /**
-     * Register optional input files.
-     * See {@link TaskInputs#files(Object...)}.
-     *
-     * <p>If any path is a {@link Class},
-     * {@link Class#getProtectionDomain()
-     * Class.protectionDomain
-     * }.{@link ProtectionDomain#getCodeSource() codeSource}.{@link CodeSource#getLocation() location} will be used.
-     */
-    public final TaskInputFilePropertyBuilder withInputFiles(String propertyName, Object... paths) {
-        paths = stream(paths)
-            .map(this::processPropertyFile)
+    private static Set<Path> getCallingScriptLocations() {
+        var directories = new LinkedHashSet<Path>();
+        return StackWalker.getInstance(RETAIN_CLASS_REFERENCE).walk(stream -> stream
+            .skip(1)
+            .map(StackFrame::getDeclaringClass)
+            .filter(not(AbstractGenerate.class::isAssignableFrom))
+            .takeWhile(clazz -> !Objects.equals(clazz.getClassLoader(), Object.class.getClassLoader()))
+            .map(Class::getProtectionDomain)
             .filter(Objects::nonNull)
-            .toArray(Object[]::new);
-
-        return configureFileProperty(
-            getInputs().files(paths).withPropertyName(propertyName)
+            .map(ProtectionDomain::getCodeSource)
+            .filter(Objects::nonNull)
+            .map(CodeSource::getLocation)
+            .filter(Objects::nonNull)
+            .filter(url -> url.toString().startsWith("file:"))
+            .distinct()
+            .map(sneakyThrowsFunction(URL::toURI))
+            .map(Paths::get)
+            .takeWhile(path -> {
+                if (isDirectory(path)) {
+                    directories.add(path);
+                    return true;
+                } else {
+                    return directories.isEmpty();
+                }
+            })
+            .filter(directories::contains)
+            .collect(toImmutableSet())
         );
-    }
-
-    /**
-     * Register optional input classpath files.
-     * See {@link TaskInputs#files(Object...)}.
-     *
-     * <p>If any path is a {@link Class},
-     * {@link Class#getProtectionDomain()
-     * Class.protectionDomain
-     * }.{@link ProtectionDomain#getCodeSource() codeSource}.{@link CodeSource#getLocation() location} will be used.
-     */
-    public final TaskInputFilePropertyBuilder withInputClasspathFiles(String propertyName, Object... paths) {
-        return withInputFiles(propertyName, paths)
-            .withNormalizer(ClasspathNormalizer.class);
-    }
-
-    /**
-     * Register an optional input file.
-     * See {@link TaskInputs#file(Object)}.
-     *
-     * <p>If the provided path is a {@link Class},
-     * {@link Class#getProtectionDomain()
-     * Class.protectionDomain
-     * }.{@link ProtectionDomain#getCodeSource() codeSource}.{@link CodeSource#getLocation() location} will be used.
-     */
-    public final TaskInputFilePropertyBuilder withInputFile(String propertyName, Object path) {
-        path = processPropertyFile(path);
-        if (path == null) {
-            throw new IllegalArgumentException("path must not be null");
-        }
-
-        return configureFileProperty(
-            getInputs().file(path).withPropertyName(propertyName)
-        );
-    }
-
-    /**
-     * Register an optional input directory.
-     * See {@link TaskInputs#dir(Object)}.
-     *
-     * <p>If the provided path is a {@link Class},
-     * {@link Class#getProtectionDomain()
-     * Class.protectionDomain
-     * }.{@link ProtectionDomain#getCodeSource() codeSource}.{@link CodeSource#getLocation() location} will be used.
-     */
-    public final TaskInputFilePropertyBuilder withInputDir(String propertyName, Object path) {
-        path = processPropertyFile(path);
-        if (path == null) {
-            throw new IllegalArgumentException("path must not be null");
-        }
-
-        return configureFileProperty(
-            getInputs().dir(path).withPropertyName(propertyName)
-        );
-    }
-
-
-    @Nullable
-    @Contract("null->null")
-    private Object processPropertyFile(@Nullable Object path) {
-        if (path == null) {
-            return null;
-        }
-
-        if (path instanceof Class) {
-            var uri = Optional.ofNullable(((Class<?>) path).getProtectionDomain())
-                .map(ProtectionDomain::getCodeSource)
-                .map(CodeSource::getLocation)
-                .map(sneakyThrowsFunction(URL::toURI))
-                .orElse(null);
-            if (uri == null) {
-                return null;
-            }
-
-            var scheme = uri.getScheme();
-            if (scheme.equals("file")) {
-                return uri;
-            }
-
-            return null;
-        }
-
-        if (path instanceof Provider) {
-            return ((Provider<?>) path).map(this::processPropertyFile);
-        }
-
-        if (path instanceof Iterable) {
-            return getProviders().provider(() ->
-                StreamSupport.stream(((Iterable<?>) path).spliterator(), false)
-                    .map(this::processPropertyFile)
-                    .filter(Objects::nonNull)
-                    .distinct()
-                    .collect(toList())
-            );
-        }
-
-        return path;
-    }
-
-    private static TaskInputFilePropertyBuilder configureFileProperty(TaskInputFilePropertyBuilder property) {
-        property = property
-            .optional(true)
-            .skipWhenEmpty(false)
-            .withPathSensitivity(RELATIVE);
-        if (IGNORE_EMPTY_DIRECTORIES_PRESENT) {
-            property = IgnoreEmptyDirectoriesCustomizer.customize(property);
-        }
-        return property;
-    }
-
-    private static final boolean IGNORE_EMPTY_DIRECTORIES_PRESENT = isClassPresent(
-        getClassName(IgnoreEmptyDirectories.class),
-        TaskPropertiesUtils.class.getClassLoader()
-    );
-
-    private static class IgnoreEmptyDirectoriesCustomizer {
-        public static TaskInputFilePropertyBuilder customize(TaskInputFilePropertyBuilder property) {
-            return property.ignoreEmptyDirectories(true);
-        }
     }
 
 
