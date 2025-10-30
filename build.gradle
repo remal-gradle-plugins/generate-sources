@@ -37,7 +37,6 @@ gradlePlugin {
             id = 'name.remal.generate-sources'
             implementationClass = 'name.remal.gradle_plugins.generate_sources.GenerateSourcesPlugin'
             displayName = 'Generate sources'
-            description = property('repository-description')
         }
     }
 }
