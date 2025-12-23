@@ -9,7 +9,7 @@
 <!--plugin-usage:name.remal.generate-sources-->
 ```groovy
 plugins {
-    id 'name.remal.generate-sources' version '2.0.4'
+    id 'name.remal.generate-sources' version '2.0.5'
 }
 ```
 <!--/plugin-usage-->
