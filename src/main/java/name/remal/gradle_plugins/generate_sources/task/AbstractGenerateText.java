@@ -3,10 +3,10 @@ package name.remal.gradle_plugins.generate_sources.task;
 import org.gradle.api.Action;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Input;
+import org.gradle.work.DisableCachingByDefault;
 
-@CacheableTask
+@DisableCachingByDefault(because = "Not worth caching in most situations")
 public abstract class AbstractGenerateText
     extends AbstractGenerate {
 

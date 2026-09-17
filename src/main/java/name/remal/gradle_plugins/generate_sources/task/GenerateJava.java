@@ -5,9 +5,9 @@ import name.remal.gradle_plugins.generate_sources.generators.java_like.java.Java
 import name.remal.gradle_plugins.generate_sources.generators.java_like.java.JavaContent;
 import name.remal.gradle_plugins.generate_sources.generators.java_like.java.JavaFileContent;
 import name.remal.gradle_plugins.generate_sources.generators.java_like.java.JavaFileContentDefault;
-import org.gradle.api.tasks.CacheableTask;
+import org.gradle.work.DisableCachingByDefault;
 
-@CacheableTask
+@DisableCachingByDefault(because = "Not worth caching in most situations")
 public abstract class GenerateJava
     extends AbstractGenerateJavaLike<JavaContent, JavaFileContent, JavaClassFileContent> {
 

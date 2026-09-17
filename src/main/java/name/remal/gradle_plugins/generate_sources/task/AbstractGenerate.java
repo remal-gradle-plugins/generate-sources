@@ -30,14 +30,14 @@ import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderFactory;
-import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.ClasspathNormalizer;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.work.DisableCachingByDefault;
 import org.intellij.lang.annotations.Language;
 import org.jspecify.annotations.Nullable;
 
-@CacheableTask
+@DisableCachingByDefault(because = "Not worth caching in most situations")
 public abstract class AbstractGenerate extends DefaultTask {
 
     {

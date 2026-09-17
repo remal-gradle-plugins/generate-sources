@@ -5,9 +5,9 @@ import name.remal.gradle_plugins.generate_sources.generators.java_like.groovy.Gr
 import name.remal.gradle_plugins.generate_sources.generators.java_like.groovy.GroovyContent;
 import name.remal.gradle_plugins.generate_sources.generators.java_like.groovy.GroovyFileContent;
 import name.remal.gradle_plugins.generate_sources.generators.java_like.groovy.GroovyFileContentDefault;
-import org.gradle.api.tasks.CacheableTask;
+import org.gradle.work.DisableCachingByDefault;
 
-@CacheableTask
+@DisableCachingByDefault(because = "Not worth caching in most situations")
 public abstract class GenerateGroovy
     extends AbstractGenerateJavaLike<GroovyContent, GroovyFileContent, GroovyClassFileContent> {
 
